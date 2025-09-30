@@ -14,12 +14,10 @@ class AuthRepository {
   Future<Either<CustomException, Auth>> login({
     required String username,
     required String password,
-    // required String shif,
   }) async {
     final res = await authRest.login(
       username: username,
       password: password,
-      // shif: shif,
     );
     return res.fold(
       (exception) {
