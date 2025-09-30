@@ -7,6 +7,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'bloc/auth/authentication/authentication_bloc.dart';
+import 'bloc/auth/logout/logout_bloc.dart';
 import 'data/data_providers/rest_api/auth_rest.dart';
 import 'data/data_providers/shared-preferences/shared_preferences_key.dart';
 import 'data/data_providers/shared-preferences/shared_preferences_manager.dart';
@@ -34,23 +35,22 @@ void main() async {
     ..interceptors.addAll([DioRequestTokenInterceptor()]);
 
   final authRest = AuthRest(dioClient);
-  // final batchRest = BatchRest(dioClient);
 
   final authRepository = AuthRepository(
     authRest: authRest,
     authSharedPref: authSharedPref,
   );
-  // final batchRepository = BatchRepository(batchRest: batchRest);
 
   runApp(
     MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: authRepository),
-        // RepositoryProvider.value(value: batchRepository),
+        RepositoryProvider.value(value: authRepository),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(lazy: false, create: (context) => AuthenticationBloc()),
+          BlocProvider(lazy: false, create: (context) => LogoutBloc(authRepository)),
         ],
         child: const MyApp(),
       ),
@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
               primaryColor: Color(0xff541690),
               hintColor: Color(0xffF1F1F1),
               disabledColor: Color(0xff808186),
-              secondaryHeaderColor: Color(0xff575353),
+              secondaryHeaderColor: Color(0xffAE75DA),
               fontFamily: "Poppins",
               textTheme: TextTheme(
                 labelSmall: const TextStyle(
