@@ -4,6 +4,7 @@ import 'package:viva_attendance/data/repository/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:viva_attendance/presentation/widgets/base_pop_up_dialog.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -54,14 +55,14 @@ class MyGridLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xff1E4694),
+        backgroundColor: Theme.of(context).primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         // leading: IconButton(
         //   icon: Icon(Icons.menu, color: Color(0xffffffff)),
         //   onPressed: () => print("Menu"),
         // ),
         title: Text(
-          'VIVA KENCANA',
+          'Viva Attendance',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: "Poppins",
@@ -73,39 +74,32 @@ class MyGridLayout extends StatelessWidget {
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 16.w),
-            // child: Icon(Icons.logout, color: Colors.white),
             child: BlocConsumer<LogoutBloc, LogoutState>(
               listener: (context, state) {
-                if (state is LogoutFailure) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text("Logout Not Success")));
-                } else if (state is LogoutSuccess) {
-                  BlocProvider.of<AuthenticationBloc>(
-                    context,
-                  ).add(SetAuthenticationStatus(isAuthenticated: false));
+                if (state is LogoutSuccess || state is LogoutFailure) {
+                  context.read<AuthenticationBloc>().add(
+                      SetAuthenticationStatus(isAuthenticated: false));
                 }
               },
               builder: (context, state) {
                 return GestureDetector(
                   onTap: () {
-                    // showDialog<bool>(
-                    //   context: context,
-                    //   builder: (BuildContext childContext) {
-                    //     return BasePopUpDialog(
-                    //       noText: "Tidak",
-                    //       yesText: "Ya",
-                    //       onNoPressed: () {},
-                    //       onYesPressed: () {
-                    //         if (state is! LogoutLoading) {
-                    //           context.read<LogoutBloc>().add(LogoutPressed());
-                    //         }
-                    //       },
-                    //       question:
-                    //           "Apakah Anda yakin ingin keluar dari aplikasi?",
-                    //     );
-                    //   },
-                    // );
+                    showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext childContext) {
+                        return BasePopUpDialog(
+                          noText: "Tidak",
+                          yesText: "Ya",
+                          onNoPressed: () {},
+                          onYesPressed: () {
+                            if (state is! LogoutLoading) {
+                              context.read<LogoutBloc>().add(LogoutPressed());
+                            }
+                          },
+                          question: "Apakah Anda yakin ingin keluar dari aplikasi?",
+                        );
+                      },
+                    );
                   },
                   child: Icon(Icons.logout, color: Colors.white),
                 );

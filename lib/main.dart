@@ -1,12 +1,3 @@
-import 'package:viva_attendance/bloc/auth/authentication/authentication_bloc.dart';
-import 'package:viva_attendance/data/data_providers/rest_api/auth_rest.dart';
-import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_key.dart';
-import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_manager.dart';
-import 'package:viva_attendance/data/repository/auth_repository.dart';
-import 'package:viva_attendance/environment.dart';
-import 'package:viva_attendance/presentation/driver/driver_dashboard_screen.dart';
-import 'package:viva_attendance/presentation/login/login_form_screen.dart';
-import 'package:viva_attendance/utils/interceptors/dio_request_token_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +5,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'bloc/auth/authentication/authentication_bloc.dart';
+import 'data/data_providers/rest_api/auth_rest.dart';
+import 'data/data_providers/shared-preferences/shared_preferences_key.dart';
+import 'data/data_providers/shared-preferences/shared_preferences_manager.dart';
+import 'data/repository/auth_repository.dart';
+import 'environment.dart';
+import 'presentation/dashboard/dashboard_screen.dart';
+import 'presentation/login/login_form_screen.dart';
+import 'utils/interceptors/dio_request_token_interceptor.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,10 +69,10 @@ class MyApp extends StatelessWidget {
       builder:
           (context, widget) => MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Viva Kencana Ekspedisi',
+            title: 'Viva Attendance',
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-              primaryColor: Color(0xff1E4694),
+              primaryColor: Color(0xff541690),
               hintColor: Color(0xffF1F1F1),
               disabledColor: Color(0xff808186),
               secondaryHeaderColor: Color(0xff575353),
@@ -101,9 +102,7 @@ class MyApp extends StatelessWidget {
             home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
               builder: (context, state) {
                 if (state is Authenticated) {
-                  // final user = state.user;
                   if (true) {
-                    print("masuk sini authenticated");
                     return DashboardScreen();
                   }
                 }

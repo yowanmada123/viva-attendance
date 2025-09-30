@@ -36,6 +36,5 @@ class AuthenticationBloc
       return {'authUser': state.user.toJson()};
     }
     return {'authUser': null};
-    ;
   }
 }
