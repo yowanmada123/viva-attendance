@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../bloc/auth/authentication/authentication_bloc.dart';
 import '../../bloc/auth/logout/logout_bloc.dart';
+import '../face_recognition/face_recognition_screen.dart';
 import '../widgets/base_card_button.dart';
 import '../widgets/base_pop_up_dialog.dart';
 
@@ -98,6 +100,31 @@ class AttendanceTypeScreen extends StatelessWidget {
               color: Color(0xFF38E54D), 
               backgroundColor: Color(0xffDDFFE1),
               icon: Icons.login,
+              onTap: () async {
+                final status = await Permission.camera.status;
+                if (status.isGranted || await Permission.camera.request().isGranted) {
+                  Navigator.push(context, MaterialPageRoute(builder: (route) => FaceRecognitionScreen()));
+                } else if (status.isPermanentlyDenied) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text(
+                        'Akses kamera ditolak permanen. Buka pengaturan untuk mengaktifkan.',
+                      ),
+                      action: SnackBarAction(
+                        label: 'Buka',
+                        onPressed: () => openAppSettings(),
+                      ),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Akses kamera diperlukan untuk mengambil foto.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
             ),
             SizedBox(height: 16.w),
 
