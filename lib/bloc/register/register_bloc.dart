@@ -14,14 +14,14 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_manager.dart';
 
-part 'attendance_event.dart';
-part 'attendance_state.dart';
+part 'register_event.dart';
+part 'register_state.dart';
 
-class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
+class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   late FaceDetector _faceDetector;
   Timer? _timer;
 
-  AttendanceBloc() : super(AttendanceState()) {
+  RegisterBloc() : super(RegisterState()) {
     _faceDetector = FaceDetector(
       options: FaceDetectorOptions(
         enableClassification: true,
@@ -45,7 +45,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
   Future<void> _onInitializeCamera(
     InitializeCamera event,
-    Emitter<AttendanceState> emit,
+    Emitter<RegisterState> emit,
   ) async {
     final cameras = await availableCameras();
     final frontCamera = cameras.firstWhere(
@@ -71,7 +71,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
   Future<void> _onProcessCameraImage(
     ProcessCameraImage event,
-    Emitter<AttendanceState> emit,
+    Emitter<RegisterState> emit,
   ) async {
     emit(state.copyWith(isDetecting: true));
     try {
@@ -89,20 +89,19 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final user = data['user'];
 
       if (faces.isNotEmpty) {
+        log("Face detected for registration");
         // ✅ Simpan frame ke file
         final filePath = await _saveCameraImage(event.image);
 
         // ✅ Verifikasi wajah pakai FaceVerification
-        final matchId = await FaceVerification.instance.verifyFromImagePath(
+        await FaceVerification.instance.registerFromImagePath(
           imagePath: filePath,
-          threshold: 0.70,
+          imageId: 'work_id',
+          id: user['id'],
+          replace: true,
         );
 
-        if (matchId != null) {
-          emit(state.copyWith(detectedName: user['name1']));
-        } else {
-          emit(state.copyWith(detectedName: null));
-        }
+        log("Face detected for registration successfully");
       } else {
         emit(state.copyWith(detectedName: null));
       }
@@ -159,7 +158,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     return Uint8List.fromList(img.encodeJpg(rgbImage));
   }
 
-  void _onUpdateDateTime(UpdateDateTime event, Emitter<AttendanceState> emit) {
+  void _onUpdateDateTime(UpdateDateTime event, Emitter<RegisterState> emit) {
     final now = DateTime.now();
     final date = DateFormat("dd/MM/yyyy EEE").format(now);
     final time = DateFormat("HH:mm:ss").format(now);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:viva_attendance/presentation/registration/registration_screen.dart';
 
 import '../../bloc/auth/authentication/authentication_bloc.dart';
 import '../../bloc/auth/logout/logout_bloc.dart';
@@ -34,7 +35,8 @@ class DashboardScreen extends StatelessWidget {
               listener: (context, state) {
                 if (state is LogoutSuccess || state is LogoutFailure) {
                   context.read<AuthenticationBloc>().add(
-                      SetAuthenticationStatus(isAuthenticated: false));
+                    SetAuthenticationStatus(isAuthenticated: false),
+                  );
                 }
               },
               builder: (context, state) {
@@ -52,7 +54,8 @@ class DashboardScreen extends StatelessWidget {
                               context.read<LogoutBloc>().add(LogoutPressed());
                             }
                           },
-                          question: "Apakah Anda yakin ingin keluar dari aplikasi?",
+                          question:
+                              "Apakah Anda yakin ingin keluar dari aplikasi?",
                         );
                       },
                     );
@@ -71,45 +74,52 @@ class DashboardScreen extends StatelessWidget {
           children: [
             Text(
               "Viva Attendance",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20.w
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.w),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 16.w),
             Text(
               "Halo! Terima kasih sudah login. Aplikasi ini hadir untuk memudahkan pengelolaan absensimu. Kamu bisa menambahkan data baru bila perlu, atau langsung masuk ke halaman absensi untuk mencatat kehadiran.",
-              style: TextStyle(
-                fontSize: 12.w,                 
-              ),
+              style: TextStyle(fontSize: 12.w),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 16.w),
 
             BaseCardButton(
-              title: "Halaman Absensi", 
-              color: Theme.of(context).primaryColor, 
+              title: "Halaman Absensi",
+              color: Theme.of(context).primaryColor,
               icon: Icons.camera_enhance_outlined,
-              description: "Anda akan diarahkan menuju laman pemilihan jenis absensi.",
+              description:
+                  "Anda akan diarahkan menuju laman pemilihan jenis absensi.",
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AttendanceTypeScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AttendanceTypeScreen(),
+                  ),
+                );
               },
             ),
             SizedBox(height: 16.w),
 
             BaseCardButton(
-              title: "Tambah Data Absensi Baru", 
-              color: Theme.of(context).secondaryHeaderColor, 
+              title: "Tambah Data Absensi Baru",
+              color: Theme.of(context).secondaryHeaderColor,
               icon: Icons.camera_enhance_outlined,
-              description: "Anda dapat menambahkan data karyawan baru pada sistem absensi.",
+              description:
+                  "Anda dapat menambahkan data karyawan baru pada sistem absensi.",
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Fitur masih belum tersedia."),
-                    behavior: SnackBarBehavior.floating,
-                  )
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegistrationScreen()),
                 );
+
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(
+                //     content: Text("Fitur masih belum tersedia."),
+                //     behavior: SnackBarBehavior.floating,
+                //   )
+                // );
               },
             ),
           ],
