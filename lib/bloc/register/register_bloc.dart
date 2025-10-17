@@ -32,8 +32,6 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       ),
     );
 
-    FaceVerification.instance.init();
-
     on<InitializeCamera>(_onInitializeCamera);
     on<ProcessCameraImage>(_onProcessCameraImage);
     on<UpdateDateTime>(_onUpdateDateTime);
@@ -92,14 +90,16 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         log("Face detected for registration");
         // ✅ Simpan frame ke file
         final filePath = await _saveCameraImage(event.image);
-
+        print('filepath: $filePath');
         // ✅ Verifikasi wajah pakai FaceVerification
-        await FaceVerification.instance.registerFromImagePath(
+        final faceResult = await FaceVerification.instance.registerFromImagePath(
           imagePath: filePath,
           imageId: 'work_id',
           id: user['id'],
           replace: true,
         );
+
+        print('face result $faceResult');
 
         log("Face detected for registration successfully");
       } else {
@@ -119,6 +119,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
     // Konversi YUV ke RGB
     final jpegBytes = await _convertYUV420toJpeg(image);
+
+    print('jpg byte $jpegBytes');
 
     // Simpan ke file
     final file = File(filePath);
