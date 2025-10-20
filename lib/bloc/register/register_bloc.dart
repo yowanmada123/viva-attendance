@@ -5,8 +5,6 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:face_verification/face_verification.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:intl/intl.dart';
@@ -122,8 +120,6 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         );
       }
     } catch (e) {
-      print(e.toString());
-      print("Masuk error nih hahahahahaha");
       emit(state.copyWith(success: false, errorMessage: e.toString()));
     } finally {
       emit(state.copyWith(isDetecting: false));
@@ -154,39 +150,5 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     state.cameraController?.dispose();
     _faceDetector.close();
     return super.close();
-  }
-
-  InputImage _cameraImageToInputImage(
-    CameraImage image,
-    CameraDescription camera,
-  ) {
-    final allBytes = WriteBuffer();
-    for (final plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-    final bytes = allBytes.done().buffer.asUint8List();
-
-    final Size imageSize = Size(
-      image.width.toDouble(),
-      image.height.toDouble(),
-    );
-
-    final cameraRotation =
-        InputImageRotationValue.fromRawValue(camera.sensorOrientation) ??
-        InputImageRotation.rotation0deg;
-
-    final rawFormat = image.format.raw;
-    final inputImageFormat =
-        (rawFormat == 35) ? InputImageFormat.nv21 : InputImageFormat.bgra8888;
-
-    return InputImage.fromBytes(
-      bytes: bytes,
-      metadata: InputImageMetadata(
-        size: imageSize,
-        rotation: cameraRotation,
-        format: inputImageFormat,
-        bytesPerRow: image.planes.first.bytesPerRow,
-      ),
-    );
   }
 }

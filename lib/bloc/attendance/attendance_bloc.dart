@@ -132,38 +132,4 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     _faceDetector.close();
     return super.close();
   }
-
-  InputImage _cameraImageToInputImage(
-    CameraImage image,
-    CameraDescription camera,
-  ) {
-    final allBytes = WriteBuffer();
-    for (final plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-    final bytes = allBytes.done().buffer.asUint8List();
-
-    final Size imageSize = Size(
-      image.width.toDouble(),
-      image.height.toDouble(),
-    );
-
-    final cameraRotation =
-        InputImageRotationValue.fromRawValue(camera.sensorOrientation) ??
-        InputImageRotation.rotation0deg;
-
-    final rawFormat = image.format.raw;
-    final inputImageFormat =
-        (rawFormat == 35) ? InputImageFormat.nv21 : InputImageFormat.bgra8888;
-
-    return InputImage.fromBytes(
-      bytes: bytes,
-      metadata: InputImageMetadata(
-        size: imageSize,
-        rotation: cameraRotation,
-        format: inputImageFormat,
-        bytesPerRow: image.planes.first.bytesPerRow,
-      ),
-    );
-  }
 }
