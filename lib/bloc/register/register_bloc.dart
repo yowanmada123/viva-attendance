@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
@@ -69,34 +70,61 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     ProcessCameraImage event,
     Emitter<RegisterState> emit,
   ) async {
+    if (state.isDetecting == true) return;
     emit(state.copyWith(isDetecting: true));
+    SharedPreferencesManager sharedPref = SharedPreferencesManager(key: 'auth');
+    final dataString = await sharedPref.read();
+    final Map<String, dynamic> data = json.decode(dataString!);
+    final user = data['user'];
+
+    final filePath = await _saveCameraImage(state.cameraController!);
+
     try {
-      final inputImage = _cameraImageToInputImage(
-        event.image,
-        state.cameraController!.description,
-      );
-
+      final inputImage = InputImage.fromFilePath(filePath);
       final faces = await _faceDetector.processImage(inputImage);
-      SharedPreferencesManager sharedPref = SharedPreferencesManager(
-        key: 'auth',
-      );
-      final dataString = await sharedPref.read();
-      final Map<String, dynamic> data = json.decode(dataString!);
-      final user = data['user'];
 
-      if (faces.isNotEmpty) {
-        final filePath = await _saveCameraImage(state.cameraController!);
-        await FaceVerification.instance.registerFromImagePath(
-          imagePath: filePath,
-          imageId: 'work_id',
-          id: user['username'],
-          replace: true,
+      if (faces.isEmpty) {
+        return;
+      }
+      if (faces.length > 1) {
+        return;
+      }
+
+      final isFaceRegistered = await FaceVerification.instance.isFaceRegistered(
+        user['username'],
+      );
+
+      if (isFaceRegistered) {
+        emit(
+          state.copyWith(
+            success: false,
+            errorMessage: "Face already registered",
+            isRegistered: true,
+          ),
         );
+        return;
+      }
+
+      final result = await FaceVerification.instance.registerFromImagePath(
+        imagePath: filePath,
+        imageId: 'work_id',
+        id: user['username'],
+        replace: true,
+      );
+
+      // If success, result will be a username
+      if (result == user['username']) {
+        emit(state.copyWith(success: true));
       } else {
-        emit(state.copyWith(detectedName: null));
+        log("Failed to register else");
+        emit(
+          state.copyWith(success: false, errorMessage: "Failed to register"),
+        );
       }
     } catch (e) {
-      debugPrint("Face detection error: $e");
+      print(e.toString());
+      print("Masuk error nih hahahahahaha");
+      emit(state.copyWith(success: false, errorMessage: e.toString()));
     } finally {
       emit(state.copyWith(isDetecting: false));
     }

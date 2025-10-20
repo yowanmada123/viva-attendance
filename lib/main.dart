@@ -53,7 +53,10 @@ void main() async {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(lazy: false, create: (context) => AuthenticationBloc()),
-          BlocProvider(lazy: false, create: (context) => LogoutBloc(authRepository)),
+          BlocProvider(
+            lazy: false,
+            create: (context) => LogoutBloc(authRepository),
+          ),
         ],
         child: const MyApp(),
       ),

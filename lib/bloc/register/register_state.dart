@@ -6,6 +6,9 @@ class RegisterState {
   final String date;
   final String time;
   final bool isDetecting;
+  final bool? success;
+  final String? errorMessage;
+  final bool isRegistered;
 
   RegisterState({
     this.cameraController,
@@ -13,6 +16,9 @@ class RegisterState {
     this.date = "",
     this.time = "",
     this.isDetecting = false,
+    this.success,
+    this.errorMessage,
+    this.isRegistered = false,
   });
 
   RegisterState copyWith({
@@ -21,6 +27,9 @@ class RegisterState {
     String? date,
     String? time,
     bool? isDetecting,
+    bool? success,
+    String? errorMessage,
+    bool? isRegistered,
   }) {
     return RegisterState(
       cameraController: cameraController ?? this.cameraController,
@@ -28,6 +37,9 @@ class RegisterState {
       date: date ?? this.date,
       time: time ?? this.time,
       isDetecting: isDetecting ?? this.isDetecting,
+      success: success ?? this.success,
+      errorMessage: errorMessage ?? this.errorMessage,
+      isRegistered: isRegistered ?? this.isRegistered,
     );
   }
 }

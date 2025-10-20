@@ -12,14 +12,26 @@ class FaceRecognitionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => AttendanceBloc()..add(InitializeCamera()),
-      child: BlocBuilder<AttendanceBloc, AttendanceState>(
+      child: BlocConsumer<AttendanceBloc, AttendanceState>(
+        listener:
+            (context, state) => {
+              if (state.success == true)
+                {
+                  Navigator.popUntil(context, (route) => route.isFirst),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("${state.detectedName} berhasil absen"),
+                      backgroundColor: Colors.green,
+                    ),
+                  ),
+                },
+            },
         builder: (context, state) {
-          if (state.cameraController == null || !state.cameraController!.value.isInitialized ) {
-            return Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
+          if (state.cameraController == null ||
+              !state.cameraController!.value.isInitialized) {
+            return Scaffold(body: Center(child: CircularProgressIndicator()));
           }
-          
+
           return Scaffold(
             body: Column(
               children: [
@@ -31,17 +43,30 @@ class FaceRecognitionScreen extends StatelessWidget {
                         child: FittedBox(
                           fit: BoxFit.cover,
                           child: SizedBox(
-                            width: state.cameraController!.value.previewSize!.height,
-                            height: state.cameraController!.value.previewSize!.width,
+                            width:
+                                state
+                                    .cameraController!
+                                    .value
+                                    .previewSize!
+                                    .height,
+                            height:
+                                state
+                                    .cameraController!
+                                    .value
+                                    .previewSize!
+                                    .width,
                             child: CameraPreview(state.cameraController!),
                           ),
                         ),
                       ),
 
                       if (state.detectedName != null)
-                        buildAttendanceCard(isSuccess: true, name: state.detectedName)
+                        buildAttendanceCard(
+                          isSuccess: true,
+                          name: state.detectedName,
+                        )
                       else
-                        buildAttendanceCard(isSuccess: false)
+                        buildAttendanceCard(isSuccess: false),
                     ],
                   ),
                 ),
@@ -56,17 +81,11 @@ class FaceRecognitionScreen extends StatelessWidget {
                     children: [
                       Text(
                         state.date,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14.w,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 14.w),
                       ),
                       Text(
                         state.time,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14.w,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 14.w),
                       ),
                     ],
                   ),
@@ -112,23 +131,20 @@ class FaceRecognitionScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12.r),
-          boxShadow: [
-            BoxShadow(color: Colors.black26, blurRadius: 6),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 6)],
         ),
         child: Column(
           children: [
             if (isSuccess)
               Text(
                 "Nama : ${name!}",
-                style: TextStyle(
-                  fontSize: 14.w,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 14.w, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8.w),
+            SizedBox(height: 8.w),
             Text(
-              isSuccess ? "Wajah Dikenali, Berhasil Absen !!!" : "Wajah Tidak Dikenali, Gagal Melakukan Absensi, coba posisikan lagi !!!",
+              isSuccess
+                  ? "Wajah Dikenali, Berhasil Absen !!!"
+                  : "Wajah Tidak Dikenali, Gagal Melakukan Absensi, coba posisikan lagi !!!",
               style: TextStyle(
                 fontSize: 12.w,
                 color: isSuccess ? Colors.green : Colors.red,
@@ -142,4 +158,3 @@ class FaceRecognitionScreen extends StatelessWidget {
     );
   }
 }
-

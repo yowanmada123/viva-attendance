@@ -6,6 +6,7 @@ class AttendanceState {
   final String date;
   final String time;
   final bool isDetecting;
+  final bool success;
 
   AttendanceState({
     this.cameraController,
@@ -13,6 +14,7 @@ class AttendanceState {
     this.date = "",
     this.time = "",
     this.isDetecting = false,
+    this.success = false,
   });
 
   AttendanceState copyWith({
@@ -21,6 +23,7 @@ class AttendanceState {
     String? date,
     String? time,
     bool? isDetecting,
+    bool? success,
   }) {
     return AttendanceState(
       cameraController: cameraController ?? this.cameraController,
@@ -28,6 +31,7 @@ class AttendanceState {
       date: date ?? this.date,
       time: time ?? this.time,
       isDetecting: isDetecting ?? this.isDetecting,
+      success: success ?? this.success,
     );
   }
 }

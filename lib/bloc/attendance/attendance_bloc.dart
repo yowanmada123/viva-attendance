@@ -69,38 +69,39 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     ProcessCameraImage event,
     Emitter<AttendanceState> emit,
   ) async {
+    if (state.success == true) return;
+    if (state.isDetecting == true) return;
     emit(state.copyWith(isDetecting: true));
+    SharedPreferencesManager sharedPref = SharedPreferencesManager(key: 'auth');
+    final dataString = await sharedPref.read();
+    final Map<String, dynamic> data = json.decode(dataString!);
+    final user = data['user'];
+
+    final filePath = await _saveCameraImage(state.cameraController!);
+
     try {
-      final inputImage = _cameraImageToInputImage(
-        event.image,
-        state.cameraController!.description,
-      );
-
+      final inputImage = InputImage.fromFilePath(filePath);
       final faces = await _faceDetector.processImage(inputImage);
-      SharedPreferencesManager sharedPref = SharedPreferencesManager(
-        key: 'auth',
+
+      if (faces.isEmpty) {
+        return;
+      }
+      if (faces.length > 1) {
+        return;
+      }
+
+      final matchId = await FaceVerification.instance.verifyFromImagePath(
+        imagePath: filePath,
+        threshold: 0.70,
       );
-      final dataString = await sharedPref.read();
-      final Map<String, dynamic> data = json.decode(dataString!);
-      final user = data['user'];
 
-      if (faces.isNotEmpty) {
-        final filePath = await _saveCameraImage(state.cameraController!);
-        final matchId = await FaceVerification.instance.verifyFromImagePath(
-          imagePath: filePath,
-          threshold: 0.70,
-        );
-
-        if (matchId != null) {
-          emit(state.copyWith(detectedName: user['name1']));
-        } else {
-          emit(state.copyWith(detectedName: null));
-        }
+      if (matchId != null) {
+        emit(state.copyWith(detectedName: user['name1'], success: true));
       } else {
         emit(state.copyWith(detectedName: null));
       }
     } catch (e) {
-      debugPrint("Face detection error: $e");
+      debugPrint(e.toString());
     } finally {
       emit(state.copyWith(isDetecting: false));
     }
