@@ -13,30 +13,30 @@ class RegistrationScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => RegisterBloc()..add(InitializeCamera()),
       child: BlocConsumer<RegisterBloc, RegisterState>(
+        listenWhen: (previous, current) {
+          final doneProcessing = previous.isDetecting == true && current.isDetecting == false;
+          return doneProcessing;
+        },
         listener:
             (context, state) => {
-              if (state.isDetecting &&
-                  state.success == false &&
-                  state.errorMessage != null)
-                {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.errorMessage!),
-                      backgroundColor: Colors.red,
-                    ),
+              if (state.success == true) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Wajah berhasil registrasi"),
+                    backgroundColor: Colors.green,
                   ),
-                  if (state.isRegistered == true)
-                    {Navigator.popUntil(context, (route) => route.isFirst)},
-                },
-              if (state.isDetecting && state.success == true)
-                {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Wajah berhasil registrasi"),
-                      backgroundColor: Colors.green,
-                    ),
+                ),
+              } else if (state.errorMessage != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.errorMessage!),
+                    backgroundColor: Colors.red,
                   ),
-                },
+                ),
+              },
+              if (state.isRegistered) {
+                Navigator.popUntil(context, (route) => route.isFirst)
+              }
             },
         builder: (context, state) {
           if (state.cameraController == null ||

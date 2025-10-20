@@ -13,17 +13,18 @@ class FaceRecognitionScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => AttendanceBloc()..add(InitializeCamera()),
       child: BlocConsumer<AttendanceBloc, AttendanceState>(
+        listenWhen: (previous, current) => previous.success != current.success && current.success == true,
         listener:
             (context, state) => {
               if (state.success == true)
                 {
-                  Navigator.popUntil(context, (route) => route.isFirst),
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text("${state.detectedName} berhasil absen"),
                       backgroundColor: Colors.green,
                     ),
                   ),
+                  Navigator.popUntil(context, (route) => route.isFirst),
                 },
             },
         builder: (context, state) {
