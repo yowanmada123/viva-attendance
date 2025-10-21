@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
@@ -10,7 +11,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:geocoding/geocoding.dart';
+
 import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_manager.dart';
+import '../../../utils/strict_location.dart';
+import '../../utils/device_utils.dart';
 
 part 'attendance_event.dart';
 part 'attendance_state.dart';
@@ -96,7 +101,29 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       );
 
       if (matchId != null) {
-        emit(state.copyWith(detectedName: user['name1'], success: true));
+        final position = await StrictLocation.getCurrentPosition();
+
+        final placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+
+        final address =
+            placemarks.isNotEmpty
+                ? "${placemarks.first.street}, ${placemarks.first.locality}, ${placemarks.first.administrativeArea}"
+                : "Address not found";
+
+        // For formatting purposes
+        final name = matchId.split('-')[1];
+        final idEmployee = matchId.split('-')[0];
+
+        final deviceId = await DeviceUtils.getDeviceId();
+
+        log(
+          "Attendance: Device ID: $deviceId, ID Employee: $idEmployee, Name: $name, Address: $address, Latitude: ${position.latitude}, Longitude: ${position.longitude}",
+        );
+
+        emit(state.copyWith(detectedName: matchId, success: true));
       } else {
         emit(state.copyWith(detectedName: null));
       }

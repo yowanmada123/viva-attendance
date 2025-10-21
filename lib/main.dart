@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:face_verification/face_verification.dart';
 import 'package:flutter/foundation.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:viva_attendance/utils/strict_location.dart';
 
 import 'bloc/auth/authentication/authentication_bloc.dart';
 import 'bloc/auth/logout/logout_bloc.dart';
@@ -22,6 +25,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await FaceVerification.instance.init();
+
+  try {
+    await StrictLocation.checkAndRequestPermission();
+  } catch (e) {
+    log('❌ Gagal meminta izin lokasi: $e');
+  }
 
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory:

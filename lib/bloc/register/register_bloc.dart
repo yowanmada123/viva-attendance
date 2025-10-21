@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_manager.dart';
 
+import '../../utils/device_utils.dart';
+
 part 'register_event.dart';
 part 'register_state.dart';
 
@@ -75,6 +77,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     final Map<String, dynamic> data = json.decode(dataString!);
     final user = data['user'];
 
+    final keyOnDatabase = "${user['username']}-${user['name1']}";
+
     final filePath = await _saveCameraImage(state.cameraController!);
 
     try {
@@ -89,7 +93,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       }
 
       final isFaceRegistered = await FaceVerification.instance.isFaceRegistered(
-        user['username'],
+        keyOnDatabase,
       );
 
       if (isFaceRegistered) {
@@ -106,12 +110,15 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       final result = await FaceVerification.instance.registerFromImagePath(
         imagePath: filePath,
         imageId: 'work_id',
-        id: user['username'],
+        id: keyOnDatabase,
         replace: true,
       );
 
       // If success, result will be a username
-      if (result == user['username']) {
+      if (result == keyOnDatabase) {
+        final deviceId = await DeviceUtils.getDeviceId();
+        log("Device ID: $deviceId");
+
         emit(state.copyWith(success: true));
       } else {
         log("Failed to register else");
