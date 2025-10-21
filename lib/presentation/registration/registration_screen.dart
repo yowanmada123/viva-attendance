@@ -4,39 +4,47 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../bloc/register/register_bloc.dart';
+import '../../data/repository/attendance_repository.dart';
 
 class RegistrationScreen extends StatelessWidget {
   const RegistrationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final attendanceRepository = context.read<AttendanceRepository>();
     return BlocProvider(
-      create: (context) => RegisterBloc()..add(InitializeCamera()),
+      create:
+          (context) =>
+              RegisterBloc(attendanceRepository: attendanceRepository)
+                ..add(InitializeCamera()),
       child: BlocConsumer<RegisterBloc, RegisterState>(
         listenWhen: (previous, current) {
-          final doneProcessing = previous.isDetecting == true && current.isDetecting == false;
+          final doneProcessing =
+              previous.isDetecting == true && current.isDetecting == false;
           return doneProcessing;
         },
         listener:
             (context, state) => {
-              if (state.success == true) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Wajah berhasil registrasi"),
-                    backgroundColor: Colors.green,
+              if (state.success == true)
+                {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Wajah berhasil registrasi"),
+                      backgroundColor: Colors.green,
+                    ),
                   ),
-                ),
-              } else if (state.errorMessage != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.errorMessage!),
-                    backgroundColor: Colors.red,
+                }
+              else if (state.errorMessage != null)
+                {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.errorMessage!),
+                      backgroundColor: Colors.red,
+                    ),
                   ),
-                ),
-              },
-              if (state.isRegistered) {
-                Navigator.popUntil(context, (route) => route.isFirst)
-              }
+                },
+              if (state.isRegistered)
+                {Navigator.popUntil(context, (route) => route.isFirst)},
             },
         builder: (context, state) {
           if (state.cameraController == null ||

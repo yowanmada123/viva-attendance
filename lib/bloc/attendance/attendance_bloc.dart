@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -12,8 +11,8 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:viva_attendance/data/repository/attendance_repository.dart';
 
-import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_manager.dart';
 import '../../../utils/strict_location.dart';
 import '../../utils/device_utils.dart';
 
@@ -21,10 +20,12 @@ part 'attendance_event.dart';
 part 'attendance_state.dart';
 
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
+  final AttendanceRepository attendanceRepository;
   late FaceDetector _faceDetector;
   Timer? _timer;
 
-  AttendanceBloc() : super(AttendanceState()) {
+  AttendanceBloc({required this.attendanceRepository})
+    : super(AttendanceState()) {
     _faceDetector = FaceDetector(
       options: FaceDetectorOptions(
         enableClassification: true,
@@ -77,10 +78,6 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     if (state.success == true) return;
     if (state.isDetecting == true) return;
     emit(state.copyWith(isDetecting: true));
-    SharedPreferencesManager sharedPref = SharedPreferencesManager(key: 'auth');
-    final dataString = await sharedPref.read();
-    final Map<String, dynamic> data = json.decode(dataString!);
-    final user = data['user'];
 
     final filePath = await _saveCameraImage(state.cameraController!);
 
@@ -121,6 +118,17 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
         log(
           "Attendance: Device ID: $deviceId, ID Employee: $idEmployee, Name: $name, Address: $address, Latitude: ${position.latitude}, Longitude: ${position.longitude}",
+        );
+
+        log("Fetch to API");
+        await attendanceRepository.attendanceLog(
+          deviceId: deviceId,
+          employeeId: idEmployee,
+          attendanceType: "IN",
+          employeeName: name,
+          address: address,
+          latitude: position.latitude,
+          longitude: position.longitude,
         );
 
         emit(state.copyWith(detectedName: matchId, success: true));

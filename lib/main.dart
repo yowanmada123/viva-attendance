@@ -12,9 +12,11 @@ import 'package:viva_attendance/utils/strict_location.dart';
 
 import 'bloc/auth/authentication/authentication_bloc.dart';
 import 'bloc/auth/logout/logout_bloc.dart';
+import 'data/data_providers/rest_api/attendance_rest.dart';
 import 'data/data_providers/rest_api/auth_rest.dart';
 import 'data/data_providers/shared-preferences/shared_preferences_key.dart';
 import 'data/data_providers/shared-preferences/shared_preferences_manager.dart';
+import 'data/repository/attendance_repository.dart';
 import 'data/repository/auth_repository.dart';
 import 'environment.dart';
 import 'presentation/dashboard/dashboard_screen.dart';
@@ -47,17 +49,21 @@ void main() async {
     ..interceptors.addAll([DioRequestTokenInterceptor()]);
 
   final authRest = AuthRest(dioClient);
+  final attendanceRest = AttendanceRest(dioClient);
 
   final authRepository = AuthRepository(
     authRest: authRest,
     authSharedPref: authSharedPref,
+  );
+  final attendanceRepository = AttendanceRepository(
+    attendanceRest: attendanceRest,
   );
 
   runApp(
     MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: authRepository),
-        RepositoryProvider.value(value: authRepository),
+        RepositoryProvider.value(value: attendanceRepository),
       ],
       child: MultiBlocProvider(
         providers: [

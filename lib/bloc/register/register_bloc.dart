@@ -10,6 +10,7 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_manager.dart';
+import 'package:viva_attendance/data/repository/attendance_repository.dart';
 
 import '../../utils/device_utils.dart';
 
@@ -17,10 +18,11 @@ part 'register_event.dart';
 part 'register_state.dart';
 
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
+  final AttendanceRepository attendanceRepository;
   late FaceDetector _faceDetector;
   Timer? _timer;
 
-  RegisterBloc() : super(RegisterState()) {
+  RegisterBloc({required this.attendanceRepository}) : super(RegisterState()) {
     _faceDetector = FaceDetector(
       options: FaceDetectorOptions(
         enableClassification: true,
@@ -118,6 +120,13 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       if (result == keyOnDatabase) {
         final deviceId = await DeviceUtils.getDeviceId();
         log("Device ID: $deviceId");
+
+        log("Fetch to API");
+        await attendanceRepository.registerDevice(
+          deviceId: deviceId,
+          employeeId: user['username'],
+          employeeName: user['name1'],
+        );
 
         emit(state.copyWith(success: true));
       } else {

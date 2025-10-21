@@ -4,16 +4,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../bloc/attendance/attendance_bloc.dart';
+import '../../data/repository/attendance_repository.dart';
 
 class FaceRecognitionScreen extends StatelessWidget {
   const FaceRecognitionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final attendanceRepository = context.read<AttendanceRepository>();
     return BlocProvider(
-      create: (context) => AttendanceBloc()..add(InitializeCamera()),
+      create:
+          (context) =>
+              AttendanceBloc(attendanceRepository: attendanceRepository)
+                ..add(InitializeCamera()),
       child: BlocConsumer<AttendanceBloc, AttendanceState>(
-        listenWhen: (previous, current) => previous.success != current.success && current.success == true,
+        listenWhen:
+            (previous, current) =>
+                previous.success != current.success && current.success == true,
         listener:
             (context, state) => {
               if (state.success == true)
