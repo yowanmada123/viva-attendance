@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../models/errors/custom_exception.dart';
 import '../../../../utils/net_utils.dart';
+import '../../../models/employee.dart';
 
 class AttendanceRest {
   Dio http;
@@ -23,25 +24,22 @@ class AttendanceRest {
     try {
       http.options.headers['requiresToken'] = true;
       log(
-        'Request to https://v2.kencana.org/api/viva/transaction/CustomerVisit/getUserData (GET)',
+        'Request to https://android.kencana.org/api/attendance (GET)',
       );
 
       final payload = {
-        "employeeId": employeeId,
-        "employeeName": employeeName,
-        "deviceId": deviceId,
-        "attendance_type": attendanceType,
+        "idemployee": employeeId,
+        "device_id": deviceId,
+        "inout_mode": attendanceType,
+        "office_id": attendanceType,
+        "fp_mach_id": attendanceType,
         "address": address,
-        "latitude": latitude,
+        "lattitude": latitude,
         "longitude": longitude,
       };
 
-      log("Payload: $payload");
-
-      return Right("Success");
-
       final response = await http.post(
-        "api/viva/transaction/CustomerVisit/getUserData",
+        "api/attendance",
         data: payload,
       );
 
@@ -70,26 +68,59 @@ class AttendanceRest {
     try {
       http.options.headers['requiresToken'] = true;
       log(
-        'Request to https://v2.kencana.org/api/viva/transaction/CustomerVisit/getUserData (GET)',
+        'Request to https://android.kencana.org/api/userRegister (GET)',
       );
 
       final payload = {
-        "employeeId": employeeId,
-        "employeeName": employeeName,
-        "deviceId": deviceId,
+        "employee_id": employeeId,
+        "device_id": deviceId,
       };
 
-      log("Payload: $payload");
-
-      return Right("Success");
-
       final response = await http.post(
-        "api/viva/transaction/CustomerVisit/getUserData",
+        "api/userRegister",
         data: payload,
       );
 
       if (response.statusCode == 200) {
         return Right("Success");
+      } else {
+        return Left(NetUtils.parseErrorResponse(response: response.data));
+      }
+    } on DioException catch (e) {
+      return Left(NetUtils.parseDioException(e));
+    } on Exception catch (e) {
+      if (e is DioException) {
+        return Left(NetUtils.parseDioException(e));
+      }
+      return Future.value(Left(CustomException(message: e.toString())));
+    } catch (e) {
+      return Left(CustomException(message: e.toString()));
+    }
+  }
+
+  Future<Either<CustomException, List<Employee>>> searchEmployee({
+    required String query,
+  }) async {
+    try {
+      http.options.headers['requiresToken'] = true;
+      log(
+        'Request to https://android.kencana.org/api/searchUser (GET)',
+      );
+
+      final payload = {
+        "keyword": query,
+      };
+
+      final response = await http.get(
+        "api/searchUser",
+        data: payload,
+      );
+
+      if (response.statusCode == 200) {
+        final List<Employee> employees = (response.data['data'] as List)
+            .map((e) => Employee.fromMap(e))
+            .toList();
+        return Right(employees);
       } else {
         return Left(NetUtils.parseErrorResponse(response: response.data));
       }

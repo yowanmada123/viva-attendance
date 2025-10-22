@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:viva_attendance/presentation/registration/registration_screen.dart';
 
 import '../../bloc/auth/authentication/authentication_bloc.dart';
 import '../../bloc/auth/logout/logout_bloc.dart';
 import '../attendance_type/attendance_type_screen.dart';
+import '../employee/employee_register_screen.dart';
 import '../widgets/base_card_button.dart';
 import '../widgets/base_pop_up_dialog.dart';
 
@@ -111,15 +111,8 @@ class DashboardScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RegistrationScreen()),
+                  MaterialPageRoute(builder: (context) => EmployeeRegisterScreen()),
                 );
-
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   SnackBar(
-                //     content: Text("Fitur masih belum tersedia."),
-                //     behavior: SnackBarBehavior.floating,
-                //   )
-                // );
               },
             ),
           ],

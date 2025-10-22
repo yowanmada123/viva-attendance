@@ -8,10 +8,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:viva_attendance/utils/strict_location.dart';
 
 import 'bloc/auth/authentication/authentication_bloc.dart';
 import 'bloc/auth/logout/logout_bloc.dart';
+import 'bloc/register/employee/register_employee_bloc.dart';
 import 'data/data_providers/rest_api/attendance_rest.dart';
 import 'data/data_providers/rest_api/auth_rest.dart';
 import 'data/data_providers/shared-preferences/shared_preferences_key.dart';
@@ -22,6 +22,7 @@ import 'environment.dart';
 import 'presentation/dashboard/dashboard_screen.dart';
 import 'presentation/login/login_form_screen.dart';
 import 'utils/interceptors/dio_request_token_interceptor.dart';
+import 'utils/strict_location.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +69,7 @@ void main() async {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(lazy: false, create: (context) => AuthenticationBloc()),
+          BlocProvider(lazy: false, create: (context) => RegisterEmployeeBloc(attendanceRepository: attendanceRepository)),
           BlocProvider(
             lazy: false,
             create: (context) => LogoutBloc(authRepository),
