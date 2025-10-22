@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 
+import '../../models/employee.dart';
 import '../../models/errors/custom_exception.dart';
 import '../data_providers/rest_api/attendance_rest.dart';
 
@@ -38,5 +39,11 @@ class AttendanceRepository {
       employeeName: employeeName,
       deviceId: deviceId,
     );
+  }
+
+  Future<Either<CustomException, List<Employee>>> searchEmployee({
+    required String query,
+  }) async {
+    return attendanceRest.searchEmployee(query: query);
   }
 }
