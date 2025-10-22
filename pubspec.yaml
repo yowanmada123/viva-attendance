@@ -42,11 +42,19 @@ dependencies:
   equatable: ^2.0.7
   hydrated_bloc: ^10.0.0
   dartz: ^0.10.1
+  face_verification: 0.0.7
   shared_preferences: ^2.5.2
   path_provider: ^2.1.5
   flutter_screenutil: ^5.9.3
   flutter_keyboard_visibility: ^6.0.0
   package_info_plus: ^8.3.0
+  google_mlkit_face_detection: ^0.13.1
+  camera: ^0.11.2
+  permission_handler: ^12.0.1
+  image: ^4.2.0
+  geocoding: ^4.0.0
+  geolocator: ^14.0.2
+  device_info_plus: ^10.1.0
 
 dev_dependencies:
   flutter_test:

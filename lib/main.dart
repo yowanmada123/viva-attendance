@@ -1,15 +1,22 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
+import 'package:face_verification/face_verification.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:viva_attendance/utils/strict_location.dart';
 
 import 'bloc/auth/authentication/authentication_bloc.dart';
+import 'bloc/auth/logout/logout_bloc.dart';
+import 'data/data_providers/rest_api/attendance_rest.dart';
 import 'data/data_providers/rest_api/auth_rest.dart';
 import 'data/data_providers/shared-preferences/shared_preferences_key.dart';
 import 'data/data_providers/shared-preferences/shared_preferences_manager.dart';
+import 'data/repository/attendance_repository.dart';
 import 'data/repository/auth_repository.dart';
 import 'environment.dart';
 import 'presentation/dashboard/dashboard_screen.dart';
@@ -18,6 +25,14 @@ import 'utils/interceptors/dio_request_token_interceptor.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await FaceVerification.instance.init();
+
+  try {
+    await StrictLocation.checkAndRequestPermission();
+  } catch (e) {
+    log('❌ Gagal meminta izin lokasi: $e');
+  }
 
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory:
@@ -34,23 +49,29 @@ void main() async {
     ..interceptors.addAll([DioRequestTokenInterceptor()]);
 
   final authRest = AuthRest(dioClient);
-  // final batchRest = BatchRest(dioClient);
+  final attendanceRest = AttendanceRest(dioClient);
 
   final authRepository = AuthRepository(
     authRest: authRest,
     authSharedPref: authSharedPref,
   );
-  // final batchRepository = BatchRepository(batchRest: batchRest);
+  final attendanceRepository = AttendanceRepository(
+    attendanceRest: attendanceRest,
+  );
 
   runApp(
     MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: authRepository),
-        // RepositoryProvider.value(value: batchRepository),
+        RepositoryProvider.value(value: attendanceRepository),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(lazy: false, create: (context) => AuthenticationBloc()),
+          BlocProvider(
+            lazy: false,
+            create: (context) => LogoutBloc(authRepository),
+          ),
         ],
         child: const MyApp(),
       ),
@@ -75,7 +96,7 @@ class MyApp extends StatelessWidget {
               primaryColor: Color(0xff541690),
               hintColor: Color(0xffF1F1F1),
               disabledColor: Color(0xff808186),
-              secondaryHeaderColor: Color(0xff575353),
+              secondaryHeaderColor: Color(0xffAE75DA),
               fontFamily: "Poppins",
               textTheme: TextTheme(
                 labelSmall: const TextStyle(
