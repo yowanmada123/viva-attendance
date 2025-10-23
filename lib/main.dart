@@ -11,14 +11,18 @@ import 'package:path_provider/path_provider.dart';
 
 import 'bloc/auth/authentication/authentication_bloc.dart';
 import 'bloc/auth/logout/logout_bloc.dart';
+import 'bloc/authorization/credentials/credentials_bloc.dart';
 import 'bloc/register/employee/register_employee_bloc.dart';
 import 'data/data_providers/rest_api/attendance_rest.dart';
 import 'data/data_providers/rest_api/auth_rest.dart';
+import 'data/data_providers/rest_api/authorization_rest.dart';
 import 'data/data_providers/shared-preferences/shared_preferences_key.dart';
 import 'data/data_providers/shared-preferences/shared_preferences_manager.dart';
 import 'data/repository/attendance_repository.dart';
 import 'data/repository/auth_repository.dart';
+import 'data/repository/authorization_repository.dart';
 import 'environment.dart';
+import 'presentation/attendance_type/attendance_type_screen.dart';
 import 'presentation/dashboard/dashboard_screen.dart';
 import 'presentation/login/login_form_screen.dart';
 import 'utils/interceptors/dio_request_token_interceptor.dart';
@@ -50,11 +54,15 @@ void main() async {
     ..interceptors.addAll([DioRequestTokenInterceptor()]);
 
   final authRest = AuthRest(dioClient);
+  final authorizationRest = AuthorizationRest(dioClient);
   final attendanceRest = AttendanceRest(dioClient);
 
   final authRepository = AuthRepository(
     authRest: authRest,
     authSharedPref: authSharedPref,
+  );
+  final authorizationRepository = AuthorizationRepository(
+    authorizationRest: authorizationRest,
   );
   final attendanceRepository = AttendanceRepository(
     attendanceRest: attendanceRest,
@@ -65,11 +73,13 @@ void main() async {
       providers: [
         RepositoryProvider.value(value: authRepository),
         RepositoryProvider.value(value: attendanceRepository),
+        RepositoryProvider.value(value: authorizationRepository),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(lazy: false, create: (context) => AuthenticationBloc()),
           BlocProvider(lazy: false, create: (context) => RegisterEmployeeBloc(attendanceRepository: attendanceRepository)),
+          BlocProvider(lazy: false, create: (context) => CredentialsBloc(authorizationRepository: authorizationRepository)..add(CredentialsLoad())),
           BlocProvider(
             lazy: false,
             create: (context) => LogoutBloc(authRepository),
@@ -122,16 +132,24 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             ),
-            home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-              builder: (context, state) {
-                if (state is Authenticated) {
-                  if (true) {
-                    return DashboardScreen();
-                  }
-                }
-                return LoginFormScreen();
+            home: BlocBuilder<CredentialsBloc, CredentialsState>(
+              builder: (context, credState) {
+                return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                  builder: (context, authState) {
+                    if (authState is Authenticated) {
+                      if (credState is CredentialsLoadSuccess) {
+                        final credentials = credState.credentials;
+                        if (credentials["ADMIN_ABSEN"] == "Y") {
+                          return DashboardScreen();
+                        }
+                        return AttendanceTypeScreen();
+                      }
+                    }
+                    return LoginFormScreen();
+                  },
+                );
               },
-            ),
+            )
           ),
     );
   }
