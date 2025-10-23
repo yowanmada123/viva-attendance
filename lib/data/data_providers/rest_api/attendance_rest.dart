@@ -14,7 +14,6 @@ class AttendanceRest {
 
   Future<Either<CustomException, String>> attendanceLog({
     required String employeeId,
-    required String employeeName,
     required String deviceId,
     required String attendanceType,
     required String address,
@@ -30,9 +29,9 @@ class AttendanceRest {
       final payload = {
         "idemployee": employeeId,
         "device_id": deviceId,
-        "inout_mode": attendanceType,
-        "office_id": attendanceType,
-        "fp_mach_id": attendanceType,
+        "inout_mode": "9",
+        "office_id": "99",
+        "fp_mach_id": 111,
         "address": address,
         "lattitude": latitude,
         "longitude": longitude,

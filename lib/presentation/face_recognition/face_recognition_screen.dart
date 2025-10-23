@@ -35,8 +35,9 @@ class FaceRecognitionScreen extends StatelessWidget {
                 },
             },
         builder: (context, state) {
-          if (state.cameraController == null ||
-              !state.cameraController!.value.isInitialized) {
+          final controller = state.cameraController;
+          if (controller == null ||
+              !controller.value.isInitialized) {
             return Scaffold(body: Center(child: CircularProgressIndicator()));
           }
 
@@ -52,18 +53,51 @@ class FaceRecognitionScreen extends StatelessWidget {
                           fit: BoxFit.cover,
                           child: SizedBox(
                             width:
-                                state
-                                    .cameraController!
+                                controller
                                     .value
                                     .previewSize!
                                     .height,
                             height:
-                                state
-                                    .cameraController!
+                                controller
                                     .value
                                     .previewSize!
                                     .width,
-                            child: CameraPreview(state.cameraController!),
+                            child: Stack(
+                              children: [
+                                CameraPreview(controller),
+
+                                if (state.isLoading && state.detectedName != null)
+                                  Container(
+                                    color: Colors.black.withValues(alpha: 0.6),
+                                    child: Center(
+                                      child: Card(
+                                        elevation: 6,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        color: Colors.white,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(24.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: const [
+                                              CircularProgressIndicator(),
+                                              SizedBox(height: 16),
+                                              Text(
+                                                "Mencocokkan wajah...",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),                                
+                                  )
+                              ],
+                            ),
                           ),
                         ),
                       ),

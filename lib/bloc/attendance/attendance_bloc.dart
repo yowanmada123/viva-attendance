@@ -75,22 +75,26 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     ProcessCameraImage event,
     Emitter<AttendanceState> emit,
   ) async {
+    if (state.isLoading) return;
     if (state.success == true) return;
     if (state.isDetecting == true) return;
-    emit(state.copyWith(isDetecting: true));
+    emit(state.copyWith(isDetecting: true, isLoading: true));
 
     final filePath = await _saveCameraImage(state.cameraController!);
 
     try {
+      await state.cameraController!.stopImageStream();
+      // For formatting purposes
       final inputImage = InputImage.fromFilePath(filePath);
       final faces = await _faceDetector.processImage(inputImage);
 
-      if (faces.isEmpty) {
-        return;
-      }
-      if (faces.length > 1) {
-        return;
-      }
+      if (faces.isEmpty || faces.length > 1) {
+      emit(state.copyWith(isLoading: false));
+      await state.cameraController!.startImageStream((image) {
+        if (!state.isLoading) add(ProcessCameraImage(image));
+      });
+      return;
+    }
 
       final matchId = await FaceVerification.instance.verifyFromImagePath(
         imagePath: filePath,
@@ -98,6 +102,9 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       );
 
       if (matchId != null) {
+        final name = matchId.split('-')[1];
+        final idEmployee = matchId.split('-')[0];
+        emit(state.copyWith(detectedName: name));
         final position = await StrictLocation.getCurrentPosition();
 
         final placemarks = await placemarkFromCoordinates(
@@ -107,12 +114,9 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
         final address =
             placemarks.isNotEmpty
-                ? "${placemarks.first.street}, ${placemarks.first.locality}, ${placemarks.first.administrativeArea}"
+                ? "${placemarks.first.street}, ${placemarks.first.subLocality}, ${placemarks.first.locality}, ${placemarks.first.subAdministrativeArea}, ${placemarks.first.administrativeArea} ${placemarks.first.postalCode}"
                 : "Address not found";
 
-        // For formatting purposes
-        final name = matchId.split('-')[1];
-        final idEmployee = matchId.split('-')[0];
 
         final deviceId = await DeviceUtils.getDeviceId();
 
@@ -125,20 +129,25 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           deviceId: deviceId,
           employeeId: idEmployee,
           attendanceType: "IN",
-          employeeName: name,
           address: address,
           latitude: position.latitude,
           longitude: position.longitude,
         );
 
-        emit(state.copyWith(detectedName: matchId, success: true));
+        emit(state.copyWith(success: true));
       } else {
+        await state.cameraController!.startImageStream((image) {
+          if (!state.isLoading) add(ProcessCameraImage(image));
+        });
         emit(state.copyWith(detectedName: null));
       }
     } catch (e) {
-      debugPrint(e.toString());
+      await state.cameraController?.startImageStream((image) {
+        if (!state.isLoading) add(ProcessCameraImage(image));
+      });
+      debugPrint('Error process camera image: ${e.toString()}');
     } finally {
-      emit(state.copyWith(isDetecting: false));
+      emit(state.copyWith(isDetecting: false, isLoading: false));
     }
   }
 
