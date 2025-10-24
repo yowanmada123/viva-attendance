@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
@@ -7,13 +6,13 @@ import 'package:face_verification/face_verification.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:viva_attendance/data/repository/attendance_repository.dart';
 
 import '../../../utils/strict_location.dart';
+import '../../data/repository/attendance_repository.dart';
 import '../../utils/device_utils.dart';
 
 part 'attendance_event.dart';
@@ -120,16 +119,10 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
         final deviceId = await DeviceUtils.getDeviceId();
 
-        log(
-          "Attendance: Device ID: $deviceId, ID Employee: $idEmployee, Name: $name, Address: $address, Latitude: ${position.latitude}, Longitude: ${position.longitude}",
-        );
-
-        log("Fetch to API");
         await attendanceRepository.attendanceLog(
           deviceId: deviceId,
           employeeId: idEmployee,
           attendanceType: "IN",
-          officeId: "99",
           address: address,
           latitude: position.latitude,
           longitude: position.longitude,

@@ -81,7 +81,7 @@ void main() async {
         providers: [
           BlocProvider(lazy: false, create: (context) => AuthenticationBloc()),
           BlocProvider(lazy: false, create: (context) => RegisterEmployeeBloc(attendanceRepository: attendanceRepository)),
-          BlocProvider(lazy: false, create: (context) => CredentialsBloc(authorizationRepository: authorizationRepository)..add(CredentialsLoad())),
+          BlocProvider(lazy: false, create: (context) => CredentialsBloc(authorizationRepository: authorizationRepository)),
           BlocProvider(
             lazy: false,
             create: (context) => LogoutBloc(authRepository),
@@ -134,10 +134,15 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             ),
-            home: BlocBuilder<CredentialsBloc, CredentialsState>(
-              builder: (context, credState) {
-                return BlocBuilder<AuthenticationBloc, AuthenticationState>(
-                  builder: (context, authState) {
+            home: BlocConsumer<AuthenticationBloc, AuthenticationState>(
+              listener: (context, authState) => {
+                if (authState is Authenticated) {
+                  context.read<CredentialsBloc>().add(CredentialsLoad())
+                }
+              },
+              builder: (context, authState) {
+                return BlocBuilder<CredentialsBloc, CredentialsState>(
+                  builder: (context, credState) {
                     if (authState is Authenticated) {
                       if (credState is CredentialsLoadSuccess) {
                         final credentials = credState.credentials;

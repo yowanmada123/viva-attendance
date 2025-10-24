@@ -18,6 +18,7 @@ class CredentialsBloc extends Bloc<CredentialsEvent, CredentialsState> {
     CredentialsLoad event,
     Emitter<CredentialsState> emit,
   ) async {
+    emit(CredentialsLoading());
     final result = await authorizationRepository.getConv();
 
     result.fold(

@@ -8,6 +8,7 @@ sealed class CredentialsState extends Equatable {
 }
 
 final class CredentialsInitial extends CredentialsState {}
+final class CredentialsLoading extends CredentialsState {}
 
 final class CredentialsLoadFailure extends CredentialsState {
   final String errorMessage;

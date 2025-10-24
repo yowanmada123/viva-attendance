@@ -16,7 +16,6 @@ class AttendanceRest {
     required String employeeId,
     required String deviceId,
     required String attendanceType,
-    required String officeId,
     required String address,
     required double latitude,
     required double longitude,
@@ -31,7 +30,6 @@ class AttendanceRest {
         "idemployee": employeeId,
         "device_id": deviceId,
         "inout_mode": attendanceType,
-        "office_id": officeId,
         "fp_mach_id": 9999,
         "address": address,
         "lattitude": latitude,
@@ -67,11 +65,11 @@ class AttendanceRest {
     try {
       http.options.headers['requiresToken'] = true;
       log(
-        'Request to https://android.kencana.org/api/userRegister (GET)',
+        'Request to https://android.kencana.org/api/userRegister (POST)',
       );
 
       final payload = {
-        "employee_id": employeeId,
+        "employee_id": "$employeeId",
         "device_id": deviceId,
       };
 
@@ -120,42 +118,6 @@ class AttendanceRest {
             .map((e) => Employee.fromMap(e))
             .toList();
         return Right(employees);
-      } else {
-        return Left(NetUtils.parseErrorResponse(response: response.data));
-      }
-    } on DioException catch (e) {
-      return Left(NetUtils.parseDioException(e));
-    } on Exception catch (e) {
-      if (e is DioException) {
-        return Left(NetUtils.parseDioException(e));
-      }
-      return Future.value(Left(CustomException(message: e.toString())));
-    } catch (e) {
-      return Left(CustomException(message: e.toString()));
-    }
-  }
-
-  Future<Either<CustomException, Employee>> getDetailEmployee({
-    required String employeeId,
-  }) async {
-    try {
-      http.options.headers['requiresToken'] = true;
-      log(
-        'Request to https://android.kencana.org/api/searchUser (GET)',
-      );
-
-      final payload = {
-        "idemployee": employeeId,
-      };
-
-      final response = await http.get(
-        "api/getUser",
-        data: payload,
-      );
-
-      if (response.statusCode == 200) {
-        final Employee employee = Employee.fromMap(response.data['data']);
-        return Right(employee);
       } else {
         return Left(NetUtils.parseErrorResponse(response: response.data));
       }
