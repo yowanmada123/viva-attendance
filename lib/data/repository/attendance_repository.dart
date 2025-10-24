@@ -13,6 +13,7 @@ class AttendanceRepository {
     required String employeeId,
     required String deviceId,
     required String attendanceType,
+    required String officeId,
     required String address,
     required double latitude,
     required double longitude,
@@ -21,6 +22,7 @@ class AttendanceRepository {
       employeeId: employeeId,
       deviceId: deviceId,
       attendanceType: attendanceType,
+      officeId: officeId,
       address: address,
       latitude: latitude,
       longitude: longitude,
@@ -28,13 +30,11 @@ class AttendanceRepository {
   }
 
   Future<Either<CustomException, String>> registerDevice({
-    required String employeeId,
-    required String employeeName,
+    required int employeeId,
     required String deviceId,
   }) async {
     return attendanceRest.registerDevice(
       employeeId: employeeId,
-      employeeName: employeeName,
       deviceId: deviceId,
     );
   }
@@ -43,5 +43,11 @@ class AttendanceRepository {
     required String query,
   }) async {
     return attendanceRest.searchEmployee(query: query);
+  }
+
+  Future<Either<CustomException, Employee>> getDetailEmployee({
+    required String employeeId,
+  }) async {
+    return attendanceRest.getDetailEmployee(employeeId: employeeId);
   }
 }

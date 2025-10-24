@@ -99,7 +99,7 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (_) => RegistrationScreen(
-                              // employee: selectedEmployee!,
+                              employee: selectedEmployee!
                             ),
                           ),
                         );

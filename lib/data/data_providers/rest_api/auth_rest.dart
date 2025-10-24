@@ -20,7 +20,7 @@ class AuthRest {
         'username': username,
         'password': password,
       };
-      log('Request to https://v2.kencana.org/api/login (POST)');
+      log('Request to https://android.kencana.org/api/login (POST)');
       final response = await http.post('api/login', data: body);
       if (response.statusCode == 200) {
         final body = response.data;
@@ -40,7 +40,7 @@ class AuthRest {
 
   Future<Either<CustomException, void>> logout() async {
     try {
-      log('Request to https://v2.kencana.org/api/logout (GET))');
+      log('Request to https://android.kencana.org/api/logout (GET))');
       final response = await http.get('api/logout');
       if (response.statusCode == 200) {
         return const Right(null);

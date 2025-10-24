@@ -129,6 +129,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           deviceId: deviceId,
           employeeId: idEmployee,
           attendanceType: "IN",
+          officeId: "99",
           address: address,
           latitude: position.latitude,
           longitude: position.longitude,

@@ -52,9 +52,11 @@ void main() async {
 
   final dioClient = Dio(Environment.dioBaseOptions)
     ..interceptors.addAll([DioRequestTokenInterceptor()]);
+  final authorizationClient = Dio(AuthorizationEnvironment.dioBaseOptions)
+    ..interceptors.addAll([DioRequestTokenInterceptor()]);
 
   final authRest = AuthRest(dioClient);
-  final authorizationRest = AuthorizationRest(dioClient);
+  final authorizationRest = AuthorizationRest(authorizationClient);
   final attendanceRest = AttendanceRest(dioClient);
 
   final authRepository = AuthRepository(
