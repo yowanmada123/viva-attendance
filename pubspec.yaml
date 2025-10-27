@@ -60,9 +60,9 @@ dependencies:
 flutter_icons:
   android: true
   ios: false
-  image_path: "assets/images/viva-attendance-icons.jpg"
-  adaptive_icon_foreground: "assets/images/viva-attendance-icons.jpg"
-  adaptive_icon_background: "assets/images/viva-attendance-icons.jpg"
+  image_path: "assets/images/viva-attendance-icons.png"
+  adaptive_icon_foreground: "assets/images/viva-attendance-icons.png"
+  adaptive_icon_background: "assets/images/viva-attendance-icons.png"
 
 dev_dependencies:
   flutter_test:
