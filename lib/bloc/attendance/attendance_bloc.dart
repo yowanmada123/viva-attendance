@@ -3,8 +3,6 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:face_verification/face_verification.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -63,7 +61,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
     controller.startImageStream((image) {
       if (!state.isDetecting) {
-        add(ProcessCameraImage(image));
+        add(ProcessCameraImage(image, attendanceType: event.attendanceType));
       }
     });
 
@@ -90,7 +88,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       if (faces.isEmpty || faces.length > 1) {
       emit(state.copyWith(isLoading: false));
       await state.cameraController!.startImageStream((image) {
-        if (!state.isLoading) add(ProcessCameraImage(image));
+        if (!state.isLoading) add(ProcessCameraImage(image, attendanceType: event.attendanceType));
       });
       return;
     }
@@ -119,27 +117,34 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
         final deviceId = await DeviceUtils.getDeviceId();
 
-        await attendanceRepository.attendanceLog(
+        final res = await attendanceRepository.attendanceLog(
           deviceId: deviceId,
           employeeId: idEmployee,
-          attendanceType: "IN",
+          attendanceType: event.attendanceType,
           address: address,
           latitude: position.latitude,
           longitude: position.longitude,
         );
 
-        emit(state.copyWith(success: true));
+        res.fold(
+          (error) => {
+            emit(state.copyWith(success: false, errorMessage: error.toString()))
+          },
+          (success) => {
+            emit(state.copyWith(success: true))
+          }
+        );
       } else {
         await state.cameraController!.startImageStream((image) {
-          if (!state.isLoading) add(ProcessCameraImage(image));
+          if (!state.isLoading) add(ProcessCameraImage(image, attendanceType: event.attendanceType));
         });
         emit(state.copyWith(detectedName: null));
       }
     } catch (e) {
       await state.cameraController?.startImageStream((image) {
-        if (!state.isLoading) add(ProcessCameraImage(image));
+        if (!state.isLoading) add(ProcessCameraImage(image, attendanceType: event.attendanceType));
       });
-      debugPrint('Error process camera image: ${e.toString()}');
+      emit(state.copyWith(success: false, errorMessage: e.toString()));
     } finally {
       emit(state.copyWith(isDetecting: false, isLoading: false));
     }

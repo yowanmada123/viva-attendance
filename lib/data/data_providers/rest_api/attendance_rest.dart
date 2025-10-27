@@ -84,6 +84,7 @@ class AttendanceRest {
         return Left(NetUtils.parseErrorResponse(response: response.data));
       }
     } on DioException catch (e) {
+      log("error dio exception: ${e.toString()}");
       return Left(NetUtils.parseDioException(e));
     } on Exception catch (e) {
       if (e is DioException) {

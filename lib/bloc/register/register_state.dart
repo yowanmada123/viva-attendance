@@ -6,6 +6,7 @@ class RegisterState {
   final String date;
   final String time;
   final bool isDetecting;
+  final bool isLoading;
   final bool? success;
   final String? errorMessage;
   final bool isRegistered;
@@ -16,6 +17,7 @@ class RegisterState {
     this.date = "",
     this.time = "",
     this.isDetecting = false,
+    this.isLoading = false,
     this.success,
     this.errorMessage,
     this.isRegistered = false,
@@ -27,6 +29,7 @@ class RegisterState {
     String? date,
     String? time,
     bool? isDetecting,
+    bool? isLoading,
     bool? success,
     String? errorMessage,
     bool? isRegistered,
@@ -37,6 +40,7 @@ class RegisterState {
       date: date ?? this.date,
       time: time ?? this.time,
       isDetecting: isDetecting ?? this.isDetecting,
+      isLoading: isLoading ?? this.isLoading,
       success: success ?? this.success,
       errorMessage: errorMessage ?? this.errorMessage,
       isRegistered: isRegistered ?? this.isRegistered,

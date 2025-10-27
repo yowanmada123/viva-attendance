@@ -65,19 +65,44 @@ class RegistrationScreen extends StatelessWidget {
                         child: FittedBox(
                           fit: BoxFit.cover,
                           child: SizedBox(
-                            width:
-                                state
-                                    .cameraController!
-                                    .value
-                                    .previewSize!
-                                    .height,
-                            height:
-                                state
-                                    .cameraController!
-                                    .value
-                                    .previewSize!
-                                    .width,
-                            child: CameraPreview(state.cameraController!),
+                            width: state.cameraController!.value.previewSize!.height,
+                            height: state.cameraController!.value.previewSize!.width,
+                            child: Stack(
+                              children: [
+                                CameraPreview(state.cameraController!),
+
+                                if (state.isLoading && state.detectedName != null)
+                                  Container(
+                                    color: Colors.black.withValues(alpha: 0.6),
+                                    child: Center(
+                                      child: Card(
+                                        elevation: 6,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        color: Colors.white,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(24.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: const [
+                                              CircularProgressIndicator(),
+                                              SizedBox(height: 16),
+                                              Text(
+                                                "Mendaftarkan wajah...",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

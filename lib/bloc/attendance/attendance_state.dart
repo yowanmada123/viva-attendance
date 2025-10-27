@@ -5,6 +5,7 @@ class AttendanceState {
   final String? detectedName;
   final String date;
   final String time;
+  final String? errorMessage;
   final bool isDetecting;
   final bool success;
   final bool isLoading;
@@ -14,6 +15,7 @@ class AttendanceState {
     this.detectedName,
     this.date = "",
     this.time = "",
+    this.errorMessage,
     this.isDetecting = false,
     this.success = false,
     this.isLoading = false,
@@ -24,6 +26,7 @@ class AttendanceState {
     String? detectedName,
     String? date,
     String? time,
+    String? errorMessage,
     bool? isDetecting,
     bool? success,
     bool? isLoading,
@@ -33,6 +36,7 @@ class AttendanceState {
       detectedName: detectedName ?? this.detectedName,
       date: date ?? this.date,
       time: time ?? this.time,
+      errorMessage: errorMessage ?? this.errorMessage,
       isDetecting: isDetecting ?? this.isDetecting,
       success: success ?? this.success,
       isLoading: isLoading ?? this.isLoading,
