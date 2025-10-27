@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class Employee {
-  final int idemployee;
+  final String idemployee;
   final String name;
   final String address1;
   final String officeId;
@@ -13,7 +13,7 @@ class Employee {
   });
 
   Employee copyWith({
-    int? idemployee,
+    String? idemployee,
     String? name,
     String? address1,
     String? officeId,
