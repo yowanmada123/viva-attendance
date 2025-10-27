@@ -7,7 +7,8 @@ import '../../bloc/attendance/attendance_bloc.dart';
 import '../../data/repository/attendance_repository.dart';
 
 class FaceRecognitionScreen extends StatelessWidget {
-  const FaceRecognitionScreen({super.key});
+  final String attendanceType;
+  const FaceRecognitionScreen({super.key, required this.attendanceType});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class FaceRecognitionScreen extends StatelessWidget {
       create:
           (context) =>
               AttendanceBloc(attendanceRepository: attendanceRepository)
-                ..add(InitializeCamera()),
+                ..add(InitializeCamera(attendanceType: attendanceType)),
       child: BlocConsumer<AttendanceBloc, AttendanceState>(
         listenWhen:
             (previous, current) =>
@@ -32,7 +33,16 @@ class FaceRecognitionScreen extends StatelessWidget {
                     ),
                   ),
                   Navigator.popUntil(context, (route) => route.isFirst),
-                },
+                }
+              else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("${state.errorMessage}"),
+                      backgroundColor: Colors.red,
+                    ),
+                  ),
+                  // Navigator.popUntil(context, (route) => route.isFirst),
+              }
             },
         builder: (context, state) {
           final controller = state.cameraController;

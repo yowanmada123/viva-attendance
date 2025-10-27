@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../bloc/auth/authentication/authentication_bloc.dart';
 import '../../bloc/auth/logout/logout_bloc.dart';
+import '../../utils/camera_utils.dart';
 import '../face_recognition/face_recognition_screen.dart';
 import '../widgets/base_card_button.dart';
 import '../widgets/base_pop_up_dialog.dart';
@@ -101,39 +101,32 @@ class AttendanceTypeScreen extends StatelessWidget {
               backgroundColor: Color(0xffDDFFE1),
               icon: Icons.login,
               onTap: () async {
-                final status = await Permission.camera.status;
-                if (status.isGranted || await Permission.camera.request().isGranted) {
-                  Navigator.push(context, MaterialPageRoute(builder: (route) => FaceRecognitionScreen()));
-                } else if (status.isPermanentlyDenied) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text(
-                        'Akses kamera ditolak permanen. Buka pengaturan untuk mengaktifkan.',
-                      ),
-                      action: SnackBarAction(
-                        label: 'Buka',
-                        onPressed: () => openAppSettings(),
-                      ),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Akses kamera diperlukan untuk mengambil foto.'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
+                final granted = await CameraUtils.ensureCameraPermission(context);
+                if (!granted) return;
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (route) => FaceRecognitionScreen(attendanceType: "1")),
+                );
               },
             ),
             SizedBox(height: 16.w),
 
             BaseCardButton(
-              title: "Ishoma",
+              title: "Istirahat",
               titleSize: 16.w,
               color: Color(0xFFFFCD38), 
               backgroundColor: Color(0xFFFFFCF4),
               icon: Icons.dinner_dining,
+              onTap: () async {
+                final granted = await CameraUtils.ensureCameraPermission(context);
+                if (!granted) return;
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (route) => FaceRecognitionScreen(attendanceType: "91")),
+                );
+              },
             ),
             SizedBox(height: 16.w),
 
@@ -142,6 +135,15 @@ class AttendanceTypeScreen extends StatelessWidget {
               titleSize: 16.w,
               color: Color(0xFFFF8D29), 
               icon: Icons.lock_clock,
+              onTap: () async {
+                final granted = await CameraUtils.ensureCameraPermission(context);
+                if (!granted) return;
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (route) => FaceRecognitionScreen(attendanceType: "92")),
+                );
+              },
             ),
             SizedBox(height: 16.w),
 
@@ -151,6 +153,15 @@ class AttendanceTypeScreen extends StatelessWidget {
               color: Color(0xFFFF4949), 
               backgroundColor: Color(0xFFFFF0F0),
               icon: Icons.logout,
+              onTap: () async {
+                final granted = await CameraUtils.ensureCameraPermission(context);
+                if (!granted) return;
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (route) => FaceRecognitionScreen(attendanceType: "0")),
+                );
+              },
             ),
             SizedBox(height: 16.w),
           ],
