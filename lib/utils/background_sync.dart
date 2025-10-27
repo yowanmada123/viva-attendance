@@ -10,7 +10,7 @@ import 'interceptors/dio_request_token_interceptor.dart';
 class BackgroundSync {
   static Timer? _syncTimer;
   static late final AttendanceRepository _repository;
-  
+
   static void _initRepository() {
     final dioClient = Dio(Environment.dioBaseOptions)
       ..interceptors.addAll([DioRequestTokenInterceptor()]);
@@ -33,7 +33,7 @@ class BackgroundSync {
   static Future<void> _syncPendingLogs() async {
     try {
       final pendingLogs = await LocalDatabase.getPendingLogs();
-      
+
       for (final log in pendingLogs) {
         await _syncLogWithRetry(log, maxRetries: 3);
       }
@@ -42,9 +42,12 @@ class BackgroundSync {
     }
   }
 
-  static Future<void> _syncLogWithRetry(dynamic log, {int maxRetries = 3}) async {
+  static Future<void> _syncLogWithRetry(
+    dynamic log, {
+    int maxRetries = 3,
+  }) async {
     int retryCount = 0;
-    
+
     while (retryCount < maxRetries) {
       try {
         final result = await _repository.attendanceLog(
@@ -56,21 +59,23 @@ class BackgroundSync {
           longitude: log.longitude,
         );
 
-        result.fold(
-          (error) => throw Exception(error.toString()),
-          (success) async {
-            await LocalDatabase.deleteLog(log.id!);
-            print('Log synced successfully: ${log.id}');
-          },
-        );
+        result.fold((error) => throw Exception(error.toString()), (
+          success,
+        ) async {
+          await LocalDatabase.deleteLog(log.id!);
+          print('Log synced successfully: ${log.id}');
+        });
         return;
       } catch (e) {
         retryCount++;
         if (retryCount < maxRetries) {
           final delay = Duration(seconds: pow(2, retryCount).toInt());
           await Future.delayed(delay);
-          print('Retry $retryCount for log ${log.id} after ${delay.inSeconds}s');
+          print(
+            'Retry $retryCount for log ${log.id} after ${delay.inSeconds}s',
+          );
         } else {
+          await LocalDatabase.deleteLog(log.id!);
           print('Failed to sync log ${log.id} after $maxRetries attempts');
         }
       }
