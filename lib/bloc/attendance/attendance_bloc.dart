@@ -11,6 +11,8 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../utils/strict_location.dart';
 import '../../data/repository/attendance_repository.dart';
+import '../../data/data_providers/local_database.dart';
+import '../../models/attendance_log.dart';
 import '../../utils/device_utils.dart';
 
 part 'attendance_event.dart';
@@ -117,23 +119,19 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
         final deviceId = await DeviceUtils.getDeviceId();
 
-        final res = await attendanceRepository.attendanceLog(
-          deviceId: deviceId,
+        // Save to SQLite first
+        final attendanceLog = AttendanceLog(
           employeeId: idEmployee,
           attendanceType: event.attendanceType,
           address: address,
           latitude: position.latitude,
           longitude: position.longitude,
+          deviceId: deviceId,
+          timestamp: DateTime.now(),
         );
 
-        res.fold(
-          (error) => {
-            emit(state.copyWith(success: false, errorMessage: error.toString()))
-          },
-          (success) => {
-            emit(state.copyWith(success: true))
-          }
-        );
+        await LocalDatabase.insertAttendanceLog(attendanceLog);
+        emit(state.copyWith(success: true));
       } else {
         await state.cameraController!.startImageStream((image) {
           if (!state.isLoading) add(ProcessCameraImage(image, attendanceType: event.attendanceType));
