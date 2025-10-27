@@ -73,7 +73,7 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
               child: BaseDropdownSearch<Employee>(
                 label: "Select Employee",
                 items: employeeList,
-                getLabel: (emp) => emp.name,
+                getLabel: (emp) => '${emp.idemployee} - ${emp.name}',
                 selectedValue: selectedEmployee,
                 onChanged: (val) {
                   setState(() => selectedEmployee = val);
