@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -9,9 +8,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_manager.dart';
-import 'package:viva_attendance/data/repository/attendance_repository.dart';
 
+import '../../data/repository/attendance_repository.dart';
+import '../../models/employee.dart';
 import '../../utils/device_utils.dart';
 
 part 'register_event.dart';
@@ -61,7 +60,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
     controller.startImageStream((image) {
       if (!state.isDetecting) {
-        add(ProcessCameraImage(image));
+        add(ProcessCameraImage(image, event.employee));
       }
     });
 
@@ -74,12 +73,11 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   ) async {
     if (state.isDetecting == true) return;
     emit(state.copyWith(isDetecting: true));
-    SharedPreferencesManager sharedPref = SharedPreferencesManager(key: 'auth');
-    final dataString = await sharedPref.read();
-    final Map<String, dynamic> data = json.decode(dataString!);
-    final user = data['user'];
+    final employee = event.employee;
+    final employeeId = employee.idemployee;
+    final employeeName = employee.name;
 
-    final keyOnDatabase = "${user['username']}-${user['name1']}";
+    final keyOnDatabase = "$employeeId-$employeeName";
 
     final filePath = await _saveCameraImage(state.cameraController!);
 
@@ -119,13 +117,10 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       // If success, result will be a username
       if (result == keyOnDatabase) {
         final deviceId = await DeviceUtils.getDeviceId();
-        log("Device ID: $deviceId");
 
-        log("Fetch to API");
         await attendanceRepository.registerDevice(
           deviceId: deviceId,
-          employeeId: user['username'],
-          employeeName: user['name1'],
+          employeeId: employeeId,
         );
 
         emit(state.copyWith(success: true));

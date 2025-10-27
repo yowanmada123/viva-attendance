@@ -15,6 +15,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -67,55 +68,57 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 48.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              "Viva Attendance",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.w),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16.w),
-            Text(
-              "Halo! Terima kasih sudah login. Aplikasi ini hadir untuk memudahkan pengelolaan absensimu. Kamu bisa menambahkan data baru bila perlu, atau langsung masuk ke halaman absensi untuk mencatat kehadiran.",
-              style: TextStyle(fontSize: 12.w),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16.w),
-
-            BaseCardButton(
-              title: "Halaman Absensi",
-              color: Theme.of(context).primaryColor,
-              icon: Icons.camera_enhance_outlined,
-              description:
-                  "Anda akan diarahkan menuju laman pemilihan jenis absensi.",
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AttendanceTypeScreen(),
-                  ),
-                );
-              },
-            ),
-            SizedBox(height: 16.w),
-
-            BaseCardButton(
-              title: "Tambah Data Absensi Baru",
-              color: Theme.of(context).secondaryHeaderColor,
-              icon: Icons.camera_enhance_outlined,
-              description:
-                  "Anda dapat menambahkan data karyawan baru pada sistem absensi.",
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EmployeeRegisterScreen()),
-                );
-              },
-            ),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 48.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                "Viva Attendance",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.w),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16.w),
+              Text(
+                "Halo! Terima kasih sudah login. Aplikasi ini hadir untuk memudahkan pengelolaan absensimu. Kamu bisa menambahkan data baru bila perlu, atau langsung masuk ke halaman absensi untuk mencatat kehadiran.",
+                style: TextStyle(fontSize: 12.w),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16.w),
+        
+              BaseCardButton(
+                title: "Halaman Absensi",
+                color: Theme.of(context).primaryColor,
+                icon: Icons.camera_enhance_outlined,
+                description:
+                    "Anda akan diarahkan menuju laman pemilihan jenis absensi.",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AttendanceTypeScreen(),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 16.w),
+        
+              BaseCardButton(
+                title: "Tambah Data Absensi Baru",
+                color: Theme.of(context).secondaryHeaderColor,
+                icon: Icons.camera_enhance_outlined,
+                description:
+                    "Anda dapat menambahkan data karyawan baru pada sistem absensi.",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EmployeeRegisterScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

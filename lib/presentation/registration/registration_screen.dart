@@ -5,9 +5,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../bloc/register/register_bloc.dart';
 import '../../data/repository/attendance_repository.dart';
+import '../../models/employee.dart';
 
 class RegistrationScreen extends StatelessWidget {
-  const RegistrationScreen({super.key});
+  final Employee employee;
+  const RegistrationScreen({super.key, required this.employee});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +18,7 @@ class RegistrationScreen extends StatelessWidget {
       create:
           (context) =>
               RegisterBloc(attendanceRepository: attendanceRepository)
-                ..add(InitializeCamera()),
+                ..add(InitializeCamera(employee: employee)),
       child: BlocConsumer<RegisterBloc, RegisterState>(
         listenWhen: (previous, current) {
           final doneProcessing =

@@ -11,7 +11,6 @@ class AttendanceRepository {
 
   Future<Either<CustomException, String>> attendanceLog({
     required String employeeId,
-    required String employeeName,
     required String deviceId,
     required String attendanceType,
     required String address,
@@ -20,7 +19,6 @@ class AttendanceRepository {
   }) async {
     return attendanceRest.attendanceLog(
       employeeId: employeeId,
-      employeeName: employeeName,
       deviceId: deviceId,
       attendanceType: attendanceType,
       address: address,
@@ -30,13 +28,11 @@ class AttendanceRepository {
   }
 
   Future<Either<CustomException, String>> registerDevice({
-    required String employeeId,
-    required String employeeName,
+    required int employeeId,
     required String deviceId,
   }) async {
     return attendanceRest.registerDevice(
       employeeId: employeeId,
-      employeeName: employeeName,
       deviceId: deviceId,
     );
   }

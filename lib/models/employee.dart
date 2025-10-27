@@ -4,21 +4,25 @@ class Employee {
   final int idemployee;
   final String name;
   final String address1;
+  final String officeId;
   Employee({
     required this.idemployee,
     required this.name,
-    required this.address1,
+    this.address1 = '',
+    this.officeId = '',
   });
 
   Employee copyWith({
     int? idemployee,
     String? name,
     String? address1,
+    String? officeId,
   }) {
     return Employee(
       idemployee: idemployee ?? this.idemployee,
       name: name ?? this.name,
       address1: address1 ?? this.address1,
+      officeId: officeId ?? this.officeId,
     );
   }
 
@@ -27,6 +31,7 @@ class Employee {
       'idemployee': idemployee,
       'name': name,
       'address1': address1,
+      'office_id': officeId,
     };
   }
 
@@ -35,6 +40,7 @@ class Employee {
       idemployee: map['idemployee']?.toInt() ?? 0,
       name: map['name'] ?? '',
       address1: map['address1'] ?? '',
+      officeId: map['office_id'] ?? '',
     );
   }
 
@@ -43,7 +49,7 @@ class Employee {
   factory Employee.fromJson(String source) => Employee.fromMap(json.decode(source));
 
   @override
-  String toString() => 'Employee(idemployee: $idemployee, name: $name, address1: $address1)';
+  String toString() => 'Employee(idemployee: $idemployee, name: $name, address1: $address1, officeId: $officeId)';
 
   @override
   bool operator ==(Object other) {
@@ -52,9 +58,10 @@ class Employee {
     return other is Employee &&
       other.idemployee == idemployee &&
       other.name == name &&
-      other.address1 == address1;
+      other.address1 == address1 &&
+      other.officeId == officeId;
   }
 
   @override
-  int get hashCode => idemployee.hashCode ^ name.hashCode ^ address1.hashCode;
+  int get hashCode => idemployee.hashCode ^ name.hashCode ^ address1.hashCode ^ officeId.hashCode;
 }

@@ -1,7 +1,3 @@
-
-
-import 'dart:developer';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,7 +26,6 @@ class RegisterEmployeeBloc extends Bloc<RegisterEmployeeEvent, RegisterEmployeeS
       res.fold(
         (l) => emit(EmployeeSearchError(l.message!)),
         (employees) {
-          log('$employees');
           emit(EmployeeSearchSuccess(employees));
         },
       );

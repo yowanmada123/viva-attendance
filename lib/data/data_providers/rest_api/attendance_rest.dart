@@ -14,7 +14,6 @@ class AttendanceRest {
 
   Future<Either<CustomException, String>> attendanceLog({
     required String employeeId,
-    required String employeeName,
     required String deviceId,
     required String attendanceType,
     required String address,
@@ -31,8 +30,7 @@ class AttendanceRest {
         "idemployee": employeeId,
         "device_id": deviceId,
         "inout_mode": attendanceType,
-        "office_id": attendanceType,
-        "fp_mach_id": attendanceType,
+        "fp_mach_id": 9999,
         "address": address,
         "lattitude": latitude,
         "longitude": longitude,
@@ -61,18 +59,17 @@ class AttendanceRest {
   }
 
   Future<Either<CustomException, String>> registerDevice({
-    required String employeeId,
-    required String employeeName,
+    required int employeeId,
     required String deviceId,
   }) async {
     try {
       http.options.headers['requiresToken'] = true;
       log(
-        'Request to https://android.kencana.org/api/userRegister (GET)',
+        'Request to https://android.kencana.org/api/userRegister (POST)',
       );
 
       final payload = {
-        "employee_id": employeeId,
+        "employee_id": "$employeeId",
         "device_id": deviceId,
       };
 
