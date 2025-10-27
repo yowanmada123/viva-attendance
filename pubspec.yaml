@@ -55,6 +55,14 @@ dependencies:
   geocoding: ^4.0.0
   geolocator: ^14.0.2
   device_info_plus: ^10.1.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/viva-attendance-logo.png"
+  adaptive_icon_foreground: "assets/images/viva-attendance-logo.png"
+  adaptive_icon_background: "assets/images/viva-attendance-logo.png"
 
 dev_dependencies:
   flutter_test:
