@@ -72,6 +72,8 @@ void main() async {
     attendanceRest: attendanceRest,
   );
 
+  BackgroundSync.initialize(attendanceRepository);
+
   runApp(
     MultiRepositoryProvider(
       providers: [

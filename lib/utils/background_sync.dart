@@ -1,25 +1,17 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:dio/dio.dart';
 import '../data/data_providers/local_database.dart';
 import '../data/repository/attendance_repository.dart';
-import '../data/data_providers/rest_api/attendance_rest.dart';
-import '../environment.dart';
-import 'interceptors/dio_request_token_interceptor.dart';
 
 class BackgroundSync {
   static Timer? _syncTimer;
   static late final AttendanceRepository _repository;
 
-  static void _initRepository() {
-    final dioClient = Dio(Environment.dioBaseOptions)
-      ..interceptors.addAll([DioRequestTokenInterceptor()]);
-    final attendanceRest = AttendanceRest(dioClient);
-    _repository = AttendanceRepository(attendanceRest: attendanceRest);
+  static void initialize(AttendanceRepository repository) {
+    _repository = repository;
   }
 
   static void startSync() {
-    _initRepository();
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       _syncPendingLogs();
