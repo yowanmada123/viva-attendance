@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:face_verification/face_verification.dart';
 import 'package:flutter/foundation.dart';
@@ -7,14 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
-
-import 'utils/background_sync.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'bloc/auth/authentication/authentication_bloc.dart';
 import 'bloc/auth/logout/logout_bloc.dart';
 import 'bloc/authorization/credentials/credentials_bloc.dart';
 import 'bloc/register/employee/register_employee_bloc.dart';
+import 'bloc/update/update_bloc.dart';
 import 'data/data_providers/rest_api/attendance_rest.dart';
 import 'data/data_providers/rest_api/auth_rest.dart';
 import 'data/data_providers/rest_api/authorization_rest.dart';
@@ -27,6 +30,7 @@ import 'environment.dart';
 import 'presentation/attendance_type/attendance_type_screen.dart';
 import 'presentation/dashboard/dashboard_screen.dart';
 import 'presentation/login/login_form_screen.dart';
+import 'utils/background_sync.dart';
 import 'utils/interceptors/dio_request_token_interceptor.dart';
 import 'utils/strict_location.dart';
 
@@ -86,6 +90,7 @@ void main() async {
           BlocProvider(lazy: false, create: (context) => AuthenticationBloc()),
           BlocProvider(lazy: false, create: (context) => RegisterEmployeeBloc(attendanceRepository: attendanceRepository)),
           BlocProvider(lazy: false, create: (context) => CredentialsBloc(authorizationRepository: authorizationRepository)),
+          BlocProvider(lazy: false, create: (context) => UpdateBloc()..add(CheckForUpdate())),
           BlocProvider(
             lazy: false,
             create: (context) => LogoutBloc(authRepository),
@@ -166,29 +171,171 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 ),
               ),
             ),
-            home: BlocConsumer<AuthenticationBloc, AuthenticationState>(
-              listener: (context, authState) => {
-                if (authState is Authenticated) {
-                  context.read<CredentialsBloc>().add(CredentialsLoad())
+            home: BlocListener<UpdateBloc, UpdateState>(
+              listener: (context, state) {
+                if (state is UpdateAvailable) {
+                  _showUpdateDialog(context, state);
+                } else if (state is UpdateDownloaded) {
+                  Navigator.pop(context);
+                  OpenFile.open(state.filePath);
+                } else if (state is UpdateError) {
+                  Navigator.pop(context);
+                  _showErrorDialog(context, state.message);
                 }
               },
-              builder: (context, authState) {
-                return BlocBuilder<CredentialsBloc, CredentialsState>(
-                  builder: (context, credState) {
-                    if (authState is Authenticated) {
-                      if (credState is CredentialsLoadSuccess) {
-                        final credentials = credState.credentials;
-                        if (credentials["ADMIN_ABSEN"] == "Y") {
-                          return DashboardScreen();
+              child: BlocConsumer<AuthenticationBloc, AuthenticationState>(
+                listener:
+                    (context, authState) => {
+                      if (authState is Authenticated)
+                        {
+                          context.read<CredentialsBloc>().add(
+                            CredentialsLoad(),
+                          ),
+                        },
+                    },
+                builder: (context, authState) {
+                  return BlocBuilder<CredentialsBloc, CredentialsState>(
+                    builder: (context, credState) {
+                      if (authState is Authenticated) {
+                        if (credState is CredentialsLoadSuccess) {
+                          final credentials = credState.credentials;
+                          if (credentials["ADMIN_ABSEN"] == "Y") {
+                            return DashboardScreen();
+                          }
+                          return AttendanceTypeScreen();
                         }
-                        return AttendanceTypeScreen();
                       }
-                    }
-                    return LoginFormScreen();
-                  },
-                );
-              },
-            )
+                      return LoginFormScreen();
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+    );
+  }
+
+  void _showUpdateDialog(BuildContext context, UpdateAvailable state) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => PopScope(
+            canPop: false,
+            child: AlertDialog(
+              title: const Text('Update Tersedia'),
+              content: Text(
+                'Versi ${state.latestVersion} tersedia:\n\n${state.updateNotes}',
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () => _handleUpdate(context, state),
+                  child: const Text('Update'),
+                ),
+              ],
+            ),
+          ),
+    );
+  }
+
+  Future<void> _handleUpdate(
+    BuildContext context,
+    UpdateAvailable state,
+  ) async {
+    Navigator.pop(context);
+
+    if (!await _checkStoragePermission(context)) return;
+
+    if (!await _checkInstallPermission(context)) return;
+
+    context.read<UpdateBloc>().add(DownloadUpdate(state.apkUrl));
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => PopScope(
+            canPop: false,
+            child: AlertDialog(
+              title: Text(
+                "Sedang Memperbarui…",
+                style: TextStyle(fontSize: 16.w),
+              ),
+              content: BlocBuilder<UpdateBloc, UpdateState>(
+                buildWhen: (prev, curr) => curr is UpdateDownloading,
+                builder: (context, state) {
+                  double progress = 0.0;
+                  if (state is UpdateDownloading) {
+                    progress = state.progress;
+                  }
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      LinearProgressIndicator(value: progress),
+                      const SizedBox(height: 12),
+                      Text("${(progress * 100).toStringAsFixed(0)}%"),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+    );
+  }
+
+  Future<bool> _checkStoragePermission(BuildContext context) async {
+    if (Platform.isAndroid) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final sdkInt = androidInfo.version.sdkInt;
+
+      if (sdkInt >= 30) {
+        final status = await Permission.manageExternalStorage.request();
+        if (status.isGranted) return true;
+      } else {
+        final status = await Permission.storage.request();
+        if (status.isGranted) return true;
+      }
+
+      _showErrorDialog(context, 'Izin penyimpanan tidak diberikan.');
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<bool> _checkInstallPermission(BuildContext context) async {
+    if (Platform.isAndroid) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final sdkInt = androidInfo.version.sdkInt;
+
+      if (sdkInt >= 26) {
+        final status = await Permission.requestInstallPackages.request();
+        if (status.isGranted) return true;
+
+        _showErrorDialog(
+          context,
+          'Izin install dari sumber tidak dikenal tidak diberikan.',
+        );
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Error'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
           ),
     );
   }

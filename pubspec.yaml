@@ -57,6 +57,7 @@ dependencies:
   device_info_plus: ^10.1.0
   sqflite: ^2.4.1
   flutter_launcher_icons: ^0.14.4
+  open_file: ^3.5.10
 
 flutter_icons:
   android: true
