@@ -20,7 +20,12 @@ class RegistrationScreen extends StatelessWidget {
               RegisterBloc(attendanceRepository: attendanceRepository)
                 ..add(InitializeCamera(employee: employee)),
       child: BlocConsumer<RegisterBloc, RegisterState>(
-        listenWhen: (previous, current) => previous.isDetecting == true && current.isDetecting == true && previous.success != current.success,
+        listenWhen: (previous, current) {
+          final successChanged = previous.success != current.success;
+          final newErrorMessage = current.errorMessage != null && current.errorMessage != previous.errorMessage;
+
+          return successChanged || newErrorMessage;
+        },
         listener: (context, state) => {
           if (state.success == true) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -30,13 +35,14 @@ class RegistrationScreen extends StatelessWidget {
               ),
             ),
             Navigator.popUntil(context, (route) => route.isFirst)
-          } else {
+          } else if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text("${state.errorMessage}"),
                 backgroundColor: Colors.red,
               ),
             ),
+            context.read<RegisterBloc>().state.copyWith(errorMessage: null)
           },
         },
         builder: (context, state) {

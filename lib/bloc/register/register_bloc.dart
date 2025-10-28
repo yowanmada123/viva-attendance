@@ -81,7 +81,13 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       final faces = await _faceDetector.processImage(inputImage);
 
       if (faces.isEmpty || faces.length > 1) {
-        emit(state.copyWith(isLoading: false, isDetecting: false, errorMessage: "Wajah tidak terdeteksi"));
+        if (state.errorMessage != "Wajah tidak terdeteksi") {
+          emit(state.copyWith(
+            isLoading: false,
+            isDetecting: false,
+            errorMessage: "Wajah tidak terdeteksi",
+          ));
+        }
         await state.cameraController!.startImageStream((image) {
           if (!state.isLoading) add(ProcessCameraImage(image, event.employee));
         });

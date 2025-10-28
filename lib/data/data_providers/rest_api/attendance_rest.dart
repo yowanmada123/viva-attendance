@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../models/errors/custom_exception.dart';
 import '../../../../utils/net_utils.dart';
+import '../../../models/device_binding.dart';
 import '../../../models/employee.dart';
 
 class AttendanceRest {
@@ -123,6 +124,85 @@ class AttendanceRest {
         return Left(NetUtils.parseErrorResponse(response: response.data));
       }
     } on DioException catch (e) {
+      return Left(NetUtils.parseDioException(e));
+    } on Exception catch (e) {
+      if (e is DioException) {
+        return Left(NetUtils.parseDioException(e));
+      }
+      return Future.value(Left(CustomException(message: e.toString())));
+    } catch (e) {
+      return Left(CustomException(message: e.toString()));
+    }
+  }
+
+  Future<Either<CustomException, List<DeviceBinding>>> getDeviceBindings({
+    required String deviceId,
+  }) async {
+    try {
+      http.options.headers['requiresToken'] = true;
+      log(
+        'Request to https://android.kencana.org/api/getListEmployeeDeviceBinding (GET)',
+      );
+
+      final payload = {
+        "device_id": deviceId,
+      };
+
+      final response = await http.get(
+        "api/getListEmployeeDeviceBinding",
+        data: payload,
+      );
+
+      if (response.statusCode == 200) {
+        final List<DeviceBinding> deviceBindings = (response.data['data'] as List)
+            .map((e) => DeviceBinding.fromMap(e))
+            .toList();
+        return Right(deviceBindings);
+      } else {
+        return Left(NetUtils.parseErrorResponse(response: response.data));
+      }
+    } on DioException catch (e) {
+      log("error dio exception get: ${e.toString()}");
+      return Left(NetUtils.parseDioException(e));
+    } on Exception catch (e) {
+      if (e is DioException) {
+        return Left(NetUtils.parseDioException(e));
+      }
+      return Future.value(Left(CustomException(message: e.toString())));
+    } catch (e) {
+      return Left(CustomException(message: e.toString()));
+    }
+  }
+
+  Future<Either<CustomException, String>> deleteDeviceBinding({
+    required String employeeId,
+    required String deviceId,
+  }) async {
+    try {
+      http.options.headers['requiresToken'] = true;
+      log(
+        'Request to https://android.kencana.org/api/userDelete (GET)',
+      );
+
+      final payload = {
+        "idemployee": employeeId,
+        "device_id": deviceId,
+      };
+
+      log('payload delete: $payload');
+
+      final response = await http.post(
+        "api/userDelete",
+        data: payload,
+      );
+
+      if (response.statusCode == 200) {
+        return Right(response.data['message']);
+      } else {
+        return Left(NetUtils.parseErrorResponse(response: response.data));
+      }
+    } on DioException catch (e) {
+      log("error dio exception delete: ${e.message.toString()}");
       return Left(NetUtils.parseDioException(e));
     } on Exception catch (e) {
       if (e is DioException) {

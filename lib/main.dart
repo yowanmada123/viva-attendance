@@ -16,6 +16,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'bloc/auth/authentication/authentication_bloc.dart';
 import 'bloc/auth/logout/logout_bloc.dart';
 import 'bloc/authorization/credentials/credentials_bloc.dart';
+import 'bloc/device_binding/device_binding_bloc.dart';
 import 'bloc/register/employee/register_employee_bloc.dart';
 import 'bloc/update/update_bloc.dart';
 import 'data/data_providers/rest_api/attendance_rest.dart';
@@ -91,6 +92,7 @@ void main() async {
           BlocProvider(lazy: false, create: (context) => RegisterEmployeeBloc(attendanceRepository: attendanceRepository)),
           BlocProvider(lazy: false, create: (context) => CredentialsBloc(authorizationRepository: authorizationRepository)),
           BlocProvider(lazy: false, create: (context) => UpdateBloc()..add(CheckForUpdate())),
+          BlocProvider(lazy: false, create: (context) => DeviceBindingBloc(attendanceRepository: attendanceRepository)),
           BlocProvider(
             lazy: false,
             create: (context) => LogoutBloc(authRepository),
@@ -183,35 +185,38 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   _showErrorDialog(context, state.message);
                 }
               },
-              child: BlocConsumer<AuthenticationBloc, AuthenticationState>(
-                listener:
-                    (context, authState) => {
-                      if (authState is Authenticated)
-                        {
-                          context.read<CredentialsBloc>().add(
-                            CredentialsLoad(),
-                          ),
-                        },
-                    },
-                builder: (context, authState) {
-                  return BlocBuilder<CredentialsBloc, CredentialsState>(
-                    builder: (context, credState) {
-                      if (authState is Authenticated) {
-                        if (credState is CredentialsLoadSuccess) {
-                          final credentials = credState.credentials;
-                          if (credentials["ADMIN_ABSEN"] == "Y") {
-                            return DashboardScreen();
-                          }
-                          return AttendanceTypeScreen();
-                        }
-                      }
-                      return LoginFormScreen();
-                    },
-                  );
+              child: BlocListener<AuthenticationBloc, AuthenticationState>(
+                listenWhen: (previous, current) => previous is Authenticated,
+                listener: (context, authState) {
+                  if (authState is Authenticated) {
+                    context.read<CredentialsBloc>().add(CredentialsLoad());
+                  }
                 },
+                child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                  builder: (context, authState) {
+                    if (authState is Authenticated) {
+                      context.read<CredentialsBloc>().add(CredentialsLoad());
+                      return BlocBuilder<CredentialsBloc, CredentialsState>(
+                        builder: (context, credState) {
+                          if (credState is CredentialsLoadSuccess) {
+                            final credentials = credState.credentials;
+                            if (credentials["ADMIN_ABSEN"] == "Y") {
+                              return DashboardScreen();
+                            }
+                            return AttendanceTypeScreen();
+                          } else {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                        },
+                      );
+                    }
+
+                    return LoginFormScreen();
+                  },
               ),
             ),
           ),
+        )
     );
   }
 
