@@ -16,6 +16,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'bloc/auth/authentication/authentication_bloc.dart';
 import 'bloc/auth/logout/logout_bloc.dart';
 import 'bloc/authorization/credentials/credentials_bloc.dart';
+import 'bloc/device_binding/device_binding_bloc.dart';
 import 'bloc/register/employee/register_employee_bloc.dart';
 import 'bloc/update/update_bloc.dart';
 import 'data/data_providers/rest_api/attendance_rest.dart';
@@ -91,6 +92,7 @@ void main() async {
           BlocProvider(lazy: false, create: (context) => RegisterEmployeeBloc(attendanceRepository: attendanceRepository)),
           BlocProvider(lazy: false, create: (context) => CredentialsBloc(authorizationRepository: authorizationRepository)),
           BlocProvider(lazy: false, create: (context) => UpdateBloc()..add(CheckForUpdate())),
+          BlocProvider(lazy: false, create: (context) => DeviceBindingBloc(attendanceRepository: attendanceRepository)),
           BlocProvider(
             lazy: false,
             create: (context) => LogoutBloc(authRepository),
