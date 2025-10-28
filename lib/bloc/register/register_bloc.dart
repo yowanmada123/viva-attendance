@@ -72,12 +72,6 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   ) async {
     if (state.isLoading || state.isDetecting) return;
     emit(state.copyWith(isDetecting: true, isLoading: true));
-    final employee = event.employee;
-    final employeeId = employee.idemployee;
-    final employeeName = employee.name;
-    emit(state.copyWith(detectedName: employeeName));
-
-    final keyOnDatabase = "$employeeId-$employeeName";
 
     final filePath = await _saveCameraImage(state.cameraController!);
 
@@ -87,12 +81,18 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       final faces = await _faceDetector.processImage(inputImage);
 
       if (faces.isEmpty || faces.length > 1) {
-        emit(state.copyWith(isLoading: false, isDetecting: false));
+        emit(state.copyWith(isLoading: false, isDetecting: false, errorMessage: "Wajah tidak terdeteksi"));
         await state.cameraController!.startImageStream((image) {
           if (!state.isLoading) add(ProcessCameraImage(image, event.employee));
         });
         return;
       }
+
+      final employee = event.employee;
+      final employeeId = employee.idemployee;
+      final employeeName = employee.name;
+      final keyOnDatabase = "$employeeId-$employeeName";
+      emit(state.copyWith(detectedName: employeeName));
 
       final isFaceRegistered = await FaceVerification.instance.isFaceRegistered(
         keyOnDatabase,
@@ -131,18 +131,16 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         );
 
         emit(state.copyWith(success: true, isLoading: false));
+        return;
       } else {
-        emit(
-          state.copyWith(success: false, errorMessage: "Failed to register", isLoading: false),
-        );
+        await state.cameraController!.startImageStream((image) {
+          if (!state.isLoading) add(ProcessCameraImage(image, employee));
+        });
+        emit(state.copyWith(detectedName: null));
       }
     } catch (e) {
       emit(state.copyWith(success: false, errorMessage: e.toString(), isLoading: false));
     } finally {
-      await state.cameraController?.startImageStream((image) {
-        if (!state.isLoading) add(ProcessCameraImage(image, event.employee));
-      });
-
       emit(state.copyWith(isDetecting: false, isLoading: false));
     }
   }

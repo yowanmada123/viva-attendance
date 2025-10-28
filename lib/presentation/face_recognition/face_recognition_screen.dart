@@ -41,7 +41,6 @@ class FaceRecognitionScreen extends StatelessWidget {
                       backgroundColor: Colors.red,
                     ),
                   ),
-                  // Navigator.popUntil(context, (route) => route.isFirst),
               }
             },
         builder: (context, state) {
@@ -104,7 +103,7 @@ class FaceRecognitionScreen extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                    ),                                
+                                    ),
                                   )
                               ],
                             ),

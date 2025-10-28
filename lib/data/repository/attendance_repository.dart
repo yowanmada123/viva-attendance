@@ -28,7 +28,7 @@ class AttendanceRepository {
   }
 
   Future<Either<CustomException, String>> registerDevice({
-    required int employeeId,
+    required String employeeId,
     required String deviceId,
   }) async {
     return attendanceRest.registerDevice(

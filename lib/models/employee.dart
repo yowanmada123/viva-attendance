@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class Employee {
-  final int idemployee;
+  final String idemployee;
   final String name;
   final String address1;
   final String officeId;
@@ -13,7 +13,7 @@ class Employee {
   });
 
   Employee copyWith({
-    int? idemployee,
+    String? idemployee,
     String? name,
     String? address1,
     String? officeId,
@@ -37,7 +37,7 @@ class Employee {
 
   factory Employee.fromMap(Map<String, dynamic> map) {
     return Employee(
-      idemployee: map['idemployee']?.toInt() ?? 0,
+      idemployee: map['idemployee'] ?? '',
       name: map['name'] ?? '',
       address1: map['address1'] ?? '',
       officeId: map['office_id'] ?? '',

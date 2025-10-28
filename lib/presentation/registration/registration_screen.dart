@@ -20,37 +20,28 @@ class RegistrationScreen extends StatelessWidget {
               RegisterBloc(attendanceRepository: attendanceRepository)
                 ..add(InitializeCamera(employee: employee)),
       child: BlocConsumer<RegisterBloc, RegisterState>(
-        listenWhen: (previous, current) {
-          final doneProcessing =
-              previous.isDetecting == true && current.isDetecting == false;
-          return doneProcessing;
+        listenWhen: (previous, current) => previous.isDetecting == true && current.isDetecting == true && previous.success != current.success,
+        listener: (context, state) => {
+          if (state.success == true) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Wajah berhasil registrasi"),
+                backgroundColor: Colors.green,
+              ),
+            ),
+            Navigator.popUntil(context, (route) => route.isFirst)
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("${state.errorMessage}"),
+                backgroundColor: Colors.red,
+              ),
+            ),
+          },
         },
-        listener:
-            (context, state) => {
-              if (state.success == true)
-                {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Wajah berhasil registrasi"),
-                      backgroundColor: Colors.green,
-                    ),
-                  ),
-                }
-              else if (state.errorMessage != null)
-                {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.errorMessage!),
-                      backgroundColor: Colors.red,
-                    ),
-                  ),
-                },
-              if (state.isRegistered)
-                {Navigator.popUntil(context, (route) => route.isFirst)},
-            },
         builder: (context, state) {
-          if (state.cameraController == null ||
-              !state.cameraController!.value.isInitialized) {
+          final controller = state.cameraController;
+          if (controller == null || !controller.value.isInitialized) {
             return Scaffold(body: Center(child: CircularProgressIndicator()));
           }
 
@@ -65,11 +56,11 @@ class RegistrationScreen extends StatelessWidget {
                         child: FittedBox(
                           fit: BoxFit.cover,
                           child: SizedBox(
-                            width: state.cameraController!.value.previewSize!.height,
-                            height: state.cameraController!.value.previewSize!.width,
+                            width: controller.value.previewSize!.height,
+                            height: controller.value.previewSize!.width,
                             child: Stack(
                               children: [
-                                CameraPreview(state.cameraController!),
+                                CameraPreview(controller),
 
                                 if (state.isLoading && state.detectedName != null)
                                   Container(
@@ -112,7 +103,7 @@ class RegistrationScreen extends StatelessWidget {
                           isSuccess: true,
                           name: state.detectedName,
                         )
-                      else
+                      else if (state.detectedName == null)
                         buildRegisterCard(isSuccess: false),
                     ],
                   ),

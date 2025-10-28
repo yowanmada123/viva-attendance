@@ -59,7 +59,7 @@ class AttendanceRest {
   }
 
   Future<Either<CustomException, String>> registerDevice({
-    required int employeeId,
+    required String employeeId,
     required String deviceId,
   }) async {
     try {
@@ -69,7 +69,7 @@ class AttendanceRest {
       );
 
       final payload = {
-        "employee_id": "$employeeId",
+        "employee_id": employeeId,
         "device_id": deviceId,
       };
 
