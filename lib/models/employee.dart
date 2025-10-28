@@ -37,7 +37,7 @@ class Employee {
 
   factory Employee.fromMap(Map<String, dynamic> map) {
     return Employee(
-      idemployee: map['idemployee']?.toInt() ?? 0,
+      idemployee: map['idemployee'] ?? '',
       name: map['name'] ?? '',
       address1: map['address1'] ?? '',
       officeId: map['office_id'] ?? '',

@@ -72,12 +72,6 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   ) async {
     if (state.isLoading || state.isDetecting) return;
     emit(state.copyWith(isDetecting: true, isLoading: true));
-    final employee = event.employee;
-    final employeeId = employee.idemployee;
-    final employeeName = employee.name;
-    emit(state.copyWith(detectedName: employeeName));
-
-    final keyOnDatabase = "$employeeId-$employeeName";
 
     final filePath = await _saveCameraImage(state.cameraController!);
 
@@ -93,6 +87,11 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         });
         return;
       }
+
+      final employee = event.employee;
+      final employeeId = employee.idemployee;
+      final employeeName = employee.name;
+      final keyOnDatabase = "$employeeId-$employeeName";
 
       final isFaceRegistered = await FaceVerification.instance.isFaceRegistered(
         keyOnDatabase,

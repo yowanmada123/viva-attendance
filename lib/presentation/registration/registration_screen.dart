@@ -27,26 +27,24 @@ class RegistrationScreen extends StatelessWidget {
         },
         listener:
             (context, state) => {
-              if (state.success == true)
-                {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Wajah berhasil registrasi"),
-                      backgroundColor: Colors.green,
-                    ),
+              if (state.success == true) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Wajah berhasil registrasi"),
+                    backgroundColor: Colors.green,
                   ),
-                }
-              else if (state.errorMessage != null)
-                {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.errorMessage!),
-                      backgroundColor: Colors.red,
-                    ),
+                ),
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("${state.errorMessage}"),
+                    backgroundColor: Colors.red,
                   ),
-                },
-              if (state.isRegistered)
-                {Navigator.popUntil(context, (route) => route.isFirst)},
+                ),
+              },
+              if (state.isRegistered) {
+                Navigator.popUntil(context, (route) => route.isFirst)
+              }
             },
         builder: (context, state) {
           if (state.cameraController == null ||
