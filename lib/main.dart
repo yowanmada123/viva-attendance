@@ -185,35 +185,38 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   _showErrorDialog(context, state.message);
                 }
               },
-              child: BlocConsumer<AuthenticationBloc, AuthenticationState>(
-                listener:
-                    (context, authState) => {
-                      if (authState is Authenticated)
-                        {
-                          context.read<CredentialsBloc>().add(
-                            CredentialsLoad(),
-                          ),
-                        },
-                    },
-                builder: (context, authState) {
-                  return BlocBuilder<CredentialsBloc, CredentialsState>(
-                    builder: (context, credState) {
-                      if (authState is Authenticated) {
-                        if (credState is CredentialsLoadSuccess) {
-                          final credentials = credState.credentials;
-                          if (credentials["ADMIN_ABSEN"] == "Y") {
-                            return DashboardScreen();
-                          }
-                          return AttendanceTypeScreen();
-                        }
-                      }
-                      return LoginFormScreen();
-                    },
-                  );
+              child: BlocListener<AuthenticationBloc, AuthenticationState>(
+                listenWhen: (previous, current) => previous is Authenticated,
+                listener: (context, authState) {
+                  if (authState is Authenticated) {
+                    context.read<CredentialsBloc>().add(CredentialsLoad());
+                  }
                 },
+                child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                  builder: (context, authState) {
+                    if (authState is Authenticated) {
+                      context.read<CredentialsBloc>().add(CredentialsLoad());
+                      return BlocBuilder<CredentialsBloc, CredentialsState>(
+                        builder: (context, credState) {
+                          if (credState is CredentialsLoadSuccess) {
+                            final credentials = credState.credentials;
+                            if (credentials["ADMIN_ABSEN"] == "Y") {
+                              return DashboardScreen();
+                            }
+                            return AttendanceTypeScreen();
+                          } else {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                        },
+                      );
+                    }
+
+                    return LoginFormScreen();
+                  },
               ),
             ),
           ),
+        )
     );
   }
 
