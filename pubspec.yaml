@@ -54,12 +54,12 @@ dependencies:
   image: ^4.2.0
   geocoding: ^4.0.0
   geolocator: ^14.0.2
-  flutter_map: ^8.2.2
   latlong2: ^0.9.1
   device_info_plus: ^10.1.0
   sqflite: ^2.4.1
   flutter_launcher_icons: ^0.14.4
   open_file: ^3.5.10
+  location_picker_flutter_map: ^4.1.0
 
 flutter_icons:
   android: true

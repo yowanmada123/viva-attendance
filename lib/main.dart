@@ -204,8 +204,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                               return DashboardScreen();
                             }
                             return AttendanceTypeScreen();
-                          } else {
+                          } else if (credState is CredentialsLoading) {
                             return const Center(child: CircularProgressIndicator());
+                          } else {
+                            return LoginFormScreen();
                           }
                         },
                       );
