@@ -70,7 +70,7 @@ class AttendanceRest {
         "employee_id": employeeId,
         "device_id": deviceId,
         "is_sales": isSales,
-        "lattitude": latitude,
+        "latitude": latitude,
         "longitude": longitude,
         "address": address,
       };
