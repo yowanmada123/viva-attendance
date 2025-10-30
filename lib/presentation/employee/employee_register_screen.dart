@@ -222,8 +222,8 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
                                         builder: (_) => RegistrationScreen(
                                           employee: selectedEmployee!,
                                           isSales: isSales,
-                                          latitude: selectedLatLng!.latitude,
-                                          longitude: selectedLatLng!.longitude,
+                                          latitude: selectedLatLng?.latitude,
+                                          longitude: selectedLatLng?.longitude,
                                           address: selectedAddress,
                                         ),
                                       ),
