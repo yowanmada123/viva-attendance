@@ -85,7 +85,6 @@ class AttendanceRest {
         return Left(NetUtils.parseErrorResponse(response: response.data));
       }
     } on DioException catch (e) {
-      log("error dio exception: ${e.toString()}");
       return Left(NetUtils.parseDioException(e));
     } on Exception catch (e) {
       if (e is DioException) {
@@ -162,7 +161,6 @@ class AttendanceRest {
         return Left(NetUtils.parseErrorResponse(response: response.data));
       }
     } on DioException catch (e) {
-      log("error dio exception get: ${e.toString()}");
       return Left(NetUtils.parseDioException(e));
     } on Exception catch (e) {
       if (e is DioException) {
@@ -189,8 +187,6 @@ class AttendanceRest {
         "device_id": deviceId,
       };
 
-      log('payload delete: $payload');
-
       final response = await http.post(
         "api/userDelete",
         data: payload,
@@ -202,7 +198,6 @@ class AttendanceRest {
         return Left(NetUtils.parseErrorResponse(response: response.data));
       }
     } on DioException catch (e) {
-      log("error dio exception delete: ${e.message.toString()}");
       return Left(NetUtils.parseDioException(e));
     } on Exception catch (e) {
       if (e is DioException) {
