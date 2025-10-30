@@ -31,10 +31,18 @@ class AttendanceRepository {
   Future<Either<CustomException, String>> registerDevice({
     required String employeeId,
     required String deviceId,
+    required bool isSales,
+    double? latitude,
+    double? longitude,
+    String? address,
   }) async {
     return attendanceRest.registerDevice(
       employeeId: employeeId,
       deviceId: deviceId,
+      isSales: isSales,
+      latitude: latitude,
+      longitude: longitude,
+      address: address,
     );
   }
 
@@ -54,6 +62,9 @@ class AttendanceRepository {
     required String employeeId,
     required String deviceId,
   }) async {
-    return attendanceRest.deleteDeviceBinding(employeeId: employeeId, deviceId: deviceId);
+    return attendanceRest.deleteDeviceBinding(
+      employeeId: employeeId,
+      deviceId: deviceId,
+    );
   }
 }
