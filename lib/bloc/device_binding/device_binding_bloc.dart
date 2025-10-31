@@ -45,8 +45,10 @@ class DeviceBindingBloc extends Bloc<DeviceBindingEvent, DeviceBindingState> {
     emit(DeviceBindingLoading());
     try {
       final existingFace = await FaceVerification.instance.getFacesForUser('${event.employeeId}-${event.employeeName}');
-      final employeeFace = existingFace.first;
-      await FaceVerification.instance.deleteFaceRecord(employeeFace.id, employeeFace.imageId);
+      if (existingFace.isNotEmpty) {
+        final employeeFace = existingFace.first;
+        await FaceVerification.instance.deleteFaceRecord(employeeFace.id, employeeFace.imageId);
+      }
       final res = await attendanceRepository.deleteDeviceBinding(
         employeeId: event.employeeId,
         deviceId: await DeviceUtils.getDeviceId(),

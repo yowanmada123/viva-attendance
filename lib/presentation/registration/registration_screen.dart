@@ -9,7 +9,18 @@ import '../../models/employee.dart';
 
 class RegistrationScreen extends StatelessWidget {
   final Employee employee;
-  const RegistrationScreen({super.key, required this.employee});
+  final bool isSales;
+  final double? latitude;
+  final double? longitude;
+  final String? address;
+  const RegistrationScreen({
+    super.key,
+    required this.employee,
+    this.isSales = false,
+    this.latitude,
+    this.longitude,
+    this.address,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,34 +28,52 @@ class RegistrationScreen extends StatelessWidget {
     return BlocProvider(
       create:
           (context) =>
-              RegisterBloc(attendanceRepository: attendanceRepository)
-                ..add(InitializeCamera(employee: employee)),
+              RegisterBloc(attendanceRepository: attendanceRepository)..add(
+                InitializeCamera(
+                  RegisterContext(
+                    employee: employee,
+                    isSales: isSales,
+                    latitude: latitude,
+                    longitude: longitude,
+                    address: address,
+                  ),
+                ),
+              ),
       child: BlocConsumer<RegisterBloc, RegisterState>(
         listenWhen: (previous, current) {
           final successChanged = previous.success != current.success;
-          final newErrorMessage = current.errorMessage != null && current.errorMessage != previous.errorMessage;
+          final newErrorMessage =
+              current.errorMessage != null &&
+              current.errorMessage != previous.errorMessage;
 
           return successChanged || newErrorMessage;
         },
-        listener: (context, state) => {
-          if (state.success == true) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Wajah berhasil registrasi"),
-                backgroundColor: Colors.green,
-              ),
-            ),
-            Navigator.popUntil(context, (route) => route.isFirst)
-          } else if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("${state.errorMessage}"),
-                backgroundColor: Colors.red,
-              ),
-            ),
-            context.read<RegisterBloc>().state.copyWith(errorMessage: null)
-          },
-        },
+        listener:
+            (context, state) => {
+              if (state.success == true)
+                {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Wajah berhasil registrasi"),
+                      backgroundColor: Colors.green,
+                    ),
+                  ),
+                  Navigator.popUntil(context, (route) => route.isFirst),
+                }
+              else if (state.errorMessage != null &&
+                  state.errorMessage!.isNotEmpty)
+                {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("${state.errorMessage}"),
+                      backgroundColor: Colors.red,
+                    ),
+                  ),
+                  context.read<RegisterBloc>().state.copyWith(
+                    errorMessage: null,
+                  ),
+                },
+            },
         builder: (context, state) {
           final controller = state.cameraController;
           if (controller == null || !controller.value.isInitialized) {
@@ -68,14 +97,17 @@ class RegistrationScreen extends StatelessWidget {
                               children: [
                                 CameraPreview(controller),
 
-                                if (state.isLoading && state.detectedName != null)
+                                if (state.isLoading &&
+                                    state.detectedName != null)
                                   Container(
                                     color: Colors.black.withValues(alpha: 0.6),
                                     child: Center(
                                       child: Card(
                                         elevation: 6,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                         ),
                                         color: Colors.white,
                                         child: Padding(

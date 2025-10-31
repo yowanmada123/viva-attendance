@@ -59,7 +59,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
     controller.startImageStream((image) {
       if (!state.isDetecting) {
-        add(ProcessCameraImage(image, event.employee));
+        add(ProcessCameraImage(image, event.context));
       }
     });
 
@@ -82,19 +82,21 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
       if (faces.isEmpty || faces.length > 1) {
         if (state.errorMessage != "Wajah tidak terdeteksi") {
-          emit(state.copyWith(
-            isLoading: false,
-            isDetecting: false,
-            errorMessage: "Wajah tidak terdeteksi",
-          ));
+          emit(
+            state.copyWith(
+              isLoading: false,
+              isDetecting: false,
+              errorMessage: "Wajah tidak terdeteksi",
+            ),
+          );
         }
         await state.cameraController!.startImageStream((image) {
-          if (!state.isLoading) add(ProcessCameraImage(image, event.employee));
+          if (!state.isLoading) add(ProcessCameraImage(image, event.context));
         });
         return;
       }
 
-      final employee = event.employee;
+      final employee = event.context.employee;
       final employeeId = employee.idemployee;
       final employeeName = employee.name;
       final keyOnDatabase = "$employeeId-$employeeName";
@@ -115,7 +117,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           ),
         );
         await state.cameraController!.startImageStream((image) {
-          if (!state.isLoading) add(ProcessCameraImage(image, event.employee));
+          if (!state.isLoading) add(ProcessCameraImage(image, event.context));
         });
         return;
       }
@@ -134,18 +136,28 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         await attendanceRepository.registerDevice(
           deviceId: deviceId,
           employeeId: employeeId,
+          isSales: event.context.isSales,
+          latitude: event.context.latitude,
+          longitude: event.context.longitude,
+          address: event.context.address,
         );
 
         emit(state.copyWith(success: true, isLoading: false));
         return;
       } else {
         await state.cameraController!.startImageStream((image) {
-          if (!state.isLoading) add(ProcessCameraImage(image, employee));
+          if (!state.isLoading) add(ProcessCameraImage(image, event.context));
         });
         emit(state.copyWith(detectedName: null));
       }
     } catch (e) {
-      emit(state.copyWith(success: false, errorMessage: e.toString(), isLoading: false));
+      emit(
+        state.copyWith(
+          success: false,
+          errorMessage: e.toString(),
+          isLoading: false,
+        ),
+      );
     } finally {
       emit(state.copyWith(isDetecting: false, isLoading: false));
     }

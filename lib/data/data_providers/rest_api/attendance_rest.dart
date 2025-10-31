@@ -23,9 +23,7 @@ class AttendanceRest {
   }) async {
     try {
       http.options.headers['requiresToken'] = true;
-      log(
-        'Request to https://android.kencana.org/api/attendance (GET)',
-      );
+      log('Request to https://android.kencana.org/api/attendance (GET)');
 
       final payload = {
         "idemployee": employeeId,
@@ -37,10 +35,7 @@ class AttendanceRest {
         "longitude": longitude,
       };
 
-      final response = await http.post(
-        "api/attendance",
-        data: payload,
-      );
+      final response = await http.post("api/attendance", data: payload);
 
       if (response.statusCode == 200) {
         return Right("Success");
@@ -62,22 +57,25 @@ class AttendanceRest {
   Future<Either<CustomException, String>> registerDevice({
     required String employeeId,
     required String deviceId,
+    required bool isSales,
+    double? latitude,
+    double? longitude,
+    String? address,
   }) async {
     try {
       http.options.headers['requiresToken'] = true;
-      log(
-        'Request to https://android.kencana.org/api/userRegister (POST)',
-      );
+      log('Request to https://android.kencana.org/api/userRegister (POST)');
 
       final payload = {
         "employee_id": employeeId,
         "device_id": deviceId,
+        "is_sales": isSales,
+        "latitude": latitude,
+        "longitude": longitude,
+        "address": address,
       };
 
-      final response = await http.post(
-        "api/userRegister",
-        data: payload,
-      );
+      final response = await http.post("api/userRegister", data: payload);
 
       if (response.statusCode == 200) {
         return Right("Success");
@@ -101,23 +99,17 @@ class AttendanceRest {
   }) async {
     try {
       http.options.headers['requiresToken'] = true;
-      log(
-        'Request to https://android.kencana.org/api/searchUser (GET)',
-      );
+      log('Request to https://android.kencana.org/api/searchUser (GET)');
 
-      final payload = {
-        "keyword": query,
-      };
+      final payload = {"keyword": query};
 
-      final response = await http.get(
-        "api/searchUser",
-        data: payload,
-      );
+      final response = await http.get("api/searchUser", data: payload);
 
       if (response.statusCode == 200) {
-        final List<Employee> employees = (response.data['data'] as List)
-            .map((e) => Employee.fromMap(e))
-            .toList();
+        final List<Employee> employees =
+            (response.data['data'] as List)
+                .map((e) => Employee.fromMap(e))
+                .toList();
         return Right(employees);
       } else {
         return Left(NetUtils.parseErrorResponse(response: response.data));
@@ -143,9 +135,7 @@ class AttendanceRest {
         'Request to https://android.kencana.org/api/getListEmployeeDeviceBinding (GET)',
       );
 
-      final payload = {
-        "device_id": deviceId,
-      };
+      final payload = {"device_id": deviceId};
 
       final response = await http.get(
         "api/getListEmployeeDeviceBinding",
@@ -153,9 +143,10 @@ class AttendanceRest {
       );
 
       if (response.statusCode == 200) {
-        final List<DeviceBinding> deviceBindings = (response.data['data'] as List)
-            .map((e) => DeviceBinding.fromMap(e))
-            .toList();
+        final List<DeviceBinding> deviceBindings =
+            (response.data['data'] as List)
+                .map((e) => DeviceBinding.fromMap(e))
+                .toList();
         return Right(deviceBindings);
       } else {
         return Left(NetUtils.parseErrorResponse(response: response.data));
@@ -178,19 +169,11 @@ class AttendanceRest {
   }) async {
     try {
       http.options.headers['requiresToken'] = true;
-      log(
-        'Request to https://android.kencana.org/api/userDelete (GET)',
-      );
+      log('Request to https://android.kencana.org/api/userDelete (GET)');
 
-      final payload = {
-        "idemployee": employeeId,
-        "device_id": deviceId,
-      };
+      final payload = {"idemployee": employeeId, "device_id": deviceId};
 
-      final response = await http.post(
-        "api/userDelete",
-        data: payload,
-      );
+      final response = await http.post("api/userDelete", data: payload);
 
       if (response.statusCode == 200) {
         return Right(response.data['message']);
