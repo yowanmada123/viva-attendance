@@ -33,6 +33,7 @@ class AttendanceRest {
         "address": address,
         "lattitude": latitude,
         "longitude": longitude,
+       
       };
 
       final response = await http.post("api/attendance", data: payload);
