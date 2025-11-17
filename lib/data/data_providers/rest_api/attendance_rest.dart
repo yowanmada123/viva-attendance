@@ -128,6 +128,7 @@ class AttendanceRest {
 
   Future<Either<CustomException, List<DeviceBinding>>> getDeviceBindings({
     required String deviceId,
+    required String idEmployee,
   }) async {
     try {
       http.options.headers['requiresToken'] = true;
@@ -135,7 +136,7 @@ class AttendanceRest {
         'Request to https://android.kencana.org/api/getListEmployeeDeviceBinding (GET)',
       );
 
-      final payload = {"device_id": deviceId};
+      final payload = {"device_id": deviceId, "idemployee": idEmployee};
 
       final response = await http.get(
         "api/getListEmployeeDeviceBinding",

@@ -54,8 +54,9 @@ class AttendanceRepository {
 
   Future<Either<CustomException, List<DeviceBinding>>> getDeviceBindings({
     required String deviceId,
+    required String idEmployee,
   }) async {
-    return attendanceRest.getDeviceBindings(deviceId: deviceId);
+    return attendanceRest.getDeviceBindings(deviceId: deviceId, idEmployee: idEmployee);
   }
 
   Future<Either<CustomException, String>> deleteDeviceBinding({

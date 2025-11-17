@@ -1,6 +1,11 @@
 
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:face_verification/face_verification.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_key.dart';
+import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_manager.dart';
 import 'package:viva_attendance/data/repository/attendance_repository.dart';
 import 'package:viva_attendance/models/device_binding.dart';
 import 'package:viva_attendance/utils/device_utils.dart';
@@ -21,9 +26,30 @@ class DeviceBindingBloc extends Bloc<DeviceBindingEvent, DeviceBindingState> {
     Emitter<DeviceBindingState> emit,
   ) async {
     emit(DeviceBindingLoading());
+    
+    String? username; 
+
+    final pref = SharedPreferencesManager(key: SharedPreferencesKey.usernameAccessKey);
+    
+    final data = await pref.read();
+    
+
+    if (data != null) {
+      final decoded = json.decode(data);
+      username = decoded['username'];
+    }
+
+    if (username == null) {
+      emit(DeviceBindingError("Username tidak ditemukan"));
+      return;
+    }
+
+    log ('Username: $username');
+    
     try {
       final res = await attendanceRepository.getDeviceBindings(
         deviceId: await DeviceUtils.getDeviceId(),
+        idEmployee: username
       );
       res.fold(
         (error) => emit(
