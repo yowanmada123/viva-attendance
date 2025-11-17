@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +26,7 @@ class RegistrationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log('Access to presentation/registration/registration_screen.dart');
     final attendanceRepository = context.read<AttendanceRepository>();
     return BlocProvider(
       create:

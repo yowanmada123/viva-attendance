@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,6 +45,7 @@ class _LoginFormViewState extends State<LoginFormView> {
   
   @override
   void initState() {
+    log('Access to presentation/login/login_form_screen.dart');
     super.initState();
     _loadRememberedLogin();
   }
@@ -51,7 +53,7 @@ class _LoginFormViewState extends State<LoginFormView> {
   void _loadRememberedLogin() async {
     final pref = SharedPreferencesManager(key: SharedPreferencesKey.loginRememberKey);
     final data = await pref.read();
-    if (data != null) {
+    if (data != null) { 
       final decoded = json.decode(data);
       usernameController.text = decoded['username'];
       passwordController.text = decoded['password'];
@@ -64,6 +66,7 @@ class _LoginFormViewState extends State<LoginFormView> {
       });
     }
   }
+
 
   @override
   void dispose() {
@@ -192,6 +195,11 @@ class _LoginFormViewState extends State<LoginFormView> {
                       } else {
                         SharedPreferencesManager(key: SharedPreferencesKey.loginRememberKey)
                           .clear();
+
+                        SharedPreferencesManager(key: SharedPreferencesKey.usernameAccessKey)
+                          .write(json.encode({
+                            'username': usernameController.text,
+                          }));
                       }
                         
                       BlocProvider.of<AuthenticationBloc>(context).add(

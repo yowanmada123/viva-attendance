@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,6 +16,7 @@ class AttendanceTypeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log('Access to presentation/attendance_type/attendance_type_screen.dart');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,

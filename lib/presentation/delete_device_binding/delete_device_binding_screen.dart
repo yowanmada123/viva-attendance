@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,6 +26,7 @@ class _DeleteDeviceBindingScreenState extends State<DeleteDeviceBindingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    log('Access to presentation/delete_device_binding/delete_device_binding_screen.dart');
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(

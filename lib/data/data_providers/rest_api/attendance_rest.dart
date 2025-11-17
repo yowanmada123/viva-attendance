@@ -141,7 +141,7 @@ class AttendanceRest {
         'Request to https://android.kencana.org/api/getListEmployeeDeviceBinding (GET)',
       );
 
-      final payload = {"device_id": deviceId, "idemployee":idEmployee};
+      final payload = {"device_id": deviceId, "idemployee": idEmployee};
 
       final response = await http.get(
         "api/getListEmployeeDeviceBinding",
