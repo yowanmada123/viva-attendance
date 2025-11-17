@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:face_verification/face_verification.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
@@ -88,13 +89,16 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final faces = await _faceDetector.processImage(inputImage);
 
       if (faces.isEmpty || faces.length > 1) {
-      emit(state.copyWith(isLoading: false));
-      await state.cameraController!.startImageStream((image) {
-        if (!state.isLoading) add(ProcessCameraImage(image, attendanceType: event.attendanceType));
-      });
-      return;
-    }
-
+        emit(state.copyWith(isLoading: false));
+          await state.cameraController!.startImageStream((image) {
+            if (!state.isLoading) {
+              add(ProcessCameraImage(image, attendanceType: event.attendanceType));
+            }
+          });
+          return;
+      }
+      
+      // FACE MATCH
       final matchId = await FaceVerification.instance.verifyFromImagePath(
         imagePath: filePath,
         threshold: 0.70,
@@ -103,7 +107,10 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       if (matchId != null) {
         final name = matchId.split('-')[1];
         final idEmployee = matchId.split('-')[0];
+        
         emit(state.copyWith(detectedName: name));
+        
+         // GET LOCATION
         final position = await StrictLocation.getCurrentPosition();
 
         final placemarks = await placemarkFromCoordinates(
@@ -120,27 +127,70 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final deviceId = await DeviceUtils.getDeviceId();
 
         // Save to SQLite first
-        final attendanceLog = AttendanceLog(
-          employeeId: idEmployee,
-          attendanceType: event.attendanceType,
-          address: address,
-          latitude: position.latitude,
-          longitude: position.longitude,
-          deviceId: deviceId,
-          timestamp: DateTime.now(),
-        );
+        
 
-        await LocalDatabase.insertAttendanceLog(attendanceLog);
-        emit(state.copyWith(success: true));
-      } else {
+        // 🟩 NEW CODE: CEK INTERNET
+        final connectivityResult = await (Connectivity().checkConnectivity());
+
+         if (connectivityResult == ConnectivityResult.none) {
+        emit(state.copyWith(
+          success: false,
+          errorMessage: "Tidak ada koneksi internet. Nyalakan data / wifi.",
+        ));
+
         await state.cameraController!.startImageStream((image) {
-          if (!state.isLoading) add(ProcessCameraImage(image, attendanceType: event.attendanceType));
+          if (!state.isLoading) {
+            add(ProcessCameraImage(image, attendanceType: event.attendanceType));
+          }
+        });
+
+        return; // <- wajib
+      }
+
+      // --------------------------
+      // 🟩 NEW CODE: HIT API
+      // --------------------------
+      final result = await attendanceRepository.attendanceLog(
+        deviceId: deviceId,
+        employeeId: idEmployee,
+        attendanceType: event.attendanceType,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        address: address,
+      );
+
+      // --------------------------
+      // 🟩 NEW CODE: HANDLE RESPONSE
+      // --------------------------
+      result.fold(
+        (failure) {
+          emit(state.copyWith(
+            success: false,
+            errorMessage: failure.toString(),
+          ));
+        },
+        (msg) {
+          emit(state.copyWith(
+            success: true,
+            serverMessage: msg
+            ));
+        },
+      );
+      } else {
+         // Jika wajah tidak cocok
+        await state.cameraController!.startImageStream((image) {
+          if (!state.isLoading) {
+            add(ProcessCameraImage(image, attendanceType: event.attendanceType));
+          }
         });
         emit(state.copyWith(detectedName: null));
       }
     } catch (e) {
+      // ERROR HANDLING
       await state.cameraController?.startImageStream((image) {
-        if (!state.isLoading) add(ProcessCameraImage(image, attendanceType: event.attendanceType));
+        if (!state.isLoading) {
+          add(ProcessCameraImage(image, attendanceType: event.attendanceType));
+        }
       });
       emit(state.copyWith(success: false, errorMessage: e.toString()));
     } finally {

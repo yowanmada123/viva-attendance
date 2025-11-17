@@ -14,11 +14,15 @@ class DeleteDeviceBindingScreen extends StatefulWidget {
 }
 
 class _DeleteDeviceBindingScreenState extends State<DeleteDeviceBindingScreen> {
+ 
+  
   @override
   void initState() {
     context.read<DeviceBindingBloc>().add(LoadRegisteredFaces());
     super.initState();
   }
+
+
 
   @override
   Widget build(BuildContext context) {

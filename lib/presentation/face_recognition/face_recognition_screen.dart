@@ -22,35 +22,52 @@ class FaceRecognitionScreen extends StatelessWidget {
               AttendanceBloc(attendanceRepository: attendanceRepository)
                 ..add(InitializeCamera(attendanceType: attendanceType)),
       child: BlocConsumer<AttendanceBloc, AttendanceState>(
-        listenWhen:
-            (previous, current) =>
-                previous.success != current.success && current.success == true,
+         // 🔥 Dengarkan perubahan success ATAU errorMessage
+        listenWhen: (previous, current) {
+          final successChanged = previous.success != current.success && current.success == true;
+          final errorChanged = previous.errorMessage != current.errorMessage &&
+              current.errorMessage != null &&
+              current.errorMessage!.isNotEmpty;
+          return successChanged || errorChanged;
+        },
         listener:
             (context, state) => {
+              // ✔ Jika berhasil
               if (state.success == true)
                 {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("${state.detectedName} berhasil absen"),
+                      content: Text(state.serverMessage ?? "Success"),
                       backgroundColor: Colors.green,
                     ),
                   ),
                   Navigator.popUntil(context, (route) => route.isFirst),
+                  
                 }
-              else {
+              else if (state.errorMessage != null && state.errorMessage !.isNotEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("${state.errorMessage}"),
-                      backgroundColor: Colors.red,
-                    ),
+                  SnackBar(
+                    content: Text(state.errorMessage!),
+                    backgroundColor: Colors.red,
                   ),
+                )
               }
+              // // ✔ Jika gagal
+              // else {
+              //   ScaffoldMessenger.of(context).showSnackBar(
+              //       SnackBar(
+              //         content: Text("${state.errorMessage}"),
+              //         backgroundColor: Colors.red,
+              //       ),
+              //     ),
+              // }
+
             },
         builder: (context, state) {
           final controller = state.cameraController;
           if (controller == null ||
               !controller.value.isInitialized) {
-            return Scaffold(body: Center(child: CircularProgressIndicator()));
+            return Scaffold(body: Center(child: CircularProgressIndicator(),),);
           }
 
           return Scaffold(

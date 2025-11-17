@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../models/errors/custom_exception.dart';
 import '../../../../utils/net_utils.dart';
@@ -25,9 +26,13 @@ class AttendanceRest {
       http.options.headers['requiresToken'] = true;
       log('Request to https://android.kencana.org/api/attendance (GET)');
 
+      final entryDate = DateFormat('yyyy-MM-dd HH:mm:ss')
+        .format(DateTime.now());  
+
       final payload = {
         "idemployee": employeeId,
         "device_id": deviceId,
+        "entry_date": entryDate,
         "inout_mode": attendanceType,
         "fp_mach_id": 9999,
         "address": address,
@@ -36,9 +41,9 @@ class AttendanceRest {
       };
 
       final response = await http.post("api/attendance", data: payload);
-
+      log('Attendance Response: $response');
       if (response.statusCode == 200) {
-        return Right("Success");
+        return Right('${response.data['message']} pada: ${response.data['data']['entry_date']}');
       } else {
         return Left(NetUtils.parseErrorResponse(response: response.data));
       }
