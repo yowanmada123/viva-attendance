@@ -116,13 +116,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    BackgroundSync.startSync();
+    // BackgroundSync.startSync();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    BackgroundSync.stopSync();
+    // BackgroundSync.stopSync();
     super.dispose();
   }
 

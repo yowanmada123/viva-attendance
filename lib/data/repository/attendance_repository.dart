@@ -15,6 +15,7 @@ class AttendanceRepository {
     required String deviceId,
     required String attendanceType,
     required String address,
+    required String entryDate,
     required double latitude,
     required double longitude,
   }) async {
@@ -24,7 +25,8 @@ class AttendanceRepository {
       attendanceType: attendanceType,
       address: address,
       latitude: latitude,
-      longitude: longitude,
+      longitude: longitude, 
+      entryDate:entryDate,
     );
   }
 

@@ -48,7 +48,8 @@ class BackgroundSync {
           attendanceType: log.attendanceType,
           address: log.address,
           latitude: log.latitude,
-          longitude: log.longitude,
+          longitude: log.longitude, 
+          entryDate: log.entryDate,
         );
 
         result.fold((error) => throw Exception(error.toString()), (

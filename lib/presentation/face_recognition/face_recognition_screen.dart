@@ -44,22 +44,15 @@ class FaceRecognitionScreen extends StatelessWidget {
                   Navigator.popUntil(context, (route) => route.isFirst),
                   
                 }
-              else if (state.errorMessage != null && state.errorMessage !.isNotEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.errorMessage!),
-                    backgroundColor: Colors.red,
-                  ),
-                )
-              }
-              // // ✔ Jika gagal
-              // else {
+
+                
+              // else if (state.errorMessage != null && state.errorMessage !.isNotEmpty) {
               //   ScaffoldMessenger.of(context).showSnackBar(
-              //       SnackBar(
-              //         content: Text("${state.errorMessage}"),
-              //         backgroundColor: Colors.red,
-              //       ),
+              //     SnackBar(
+              //       content: Text(state.errorMessage!),
+              //       backgroundColor: Colors.red,
               //     ),
+              //   )
               // }
 
             },

@@ -31,7 +31,7 @@ class LocalDatabase {
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
         deviceId TEXT NOT NULL,
-        timestamp TEXT NOT NULL,
+        entryDate TEXT NOT NULL,
         success INTEGER NOT NULL DEFAULT 0
       )
     ''');

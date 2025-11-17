@@ -18,6 +18,7 @@ class AttendanceRest {
     required String employeeId,
     required String deviceId,
     required String attendanceType,
+    required String entryDate,
     required String address,
     required double latitude,
     required double longitude,
@@ -25,9 +26,6 @@ class AttendanceRest {
     try {
       http.options.headers['requiresToken'] = true;
       log('Request to https://android.kencana.org/api/attendance (GET)');
-
-      final entryDate = DateFormat('yyyy-MM-dd HH:mm:ss')
-        .format(DateTime.now());  
 
       final payload = {
         "idemployee": employeeId,

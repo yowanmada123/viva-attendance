@@ -127,55 +127,71 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final deviceId = await DeviceUtils.getDeviceId();
 
         // Save to SQLite first
-        
+        final entryDate = DateFormat('yyyy-MM-dd HH:mm:ss')
+        .format(DateTime.now()); 
 
         // 🟩 NEW CODE: CEK INTERNET
         final connectivityResult = await (Connectivity().checkConnectivity());
 
          if (connectivityResult == ConnectivityResult.none) {
-              emit(state.copyWith(
-                success: false,
-                errorMessage: "Tidak ada koneksi internet. Nyalakan data / wifi.",
-              ));
+              
+               final attendanceLog = AttendanceLog(
+                  employeeId: idEmployee,
+                  attendanceType: event.attendanceType,
+                  address: address,
+                  latitude: position.latitude,
+                  longitude: position.longitude,
+                  deviceId: deviceId,
+                  entryDate: entryDate,
+                );
 
-              await state.cameraController!.startImageStream((image) {
-                if (!state.isLoading) {
-                  add(ProcessCameraImage(image, attendanceType: event.attendanceType));
-                }
-              });
+                await LocalDatabase.insertAttendanceLog(attendanceLog);
 
-            return; // <- wajib
+                emit(state.copyWith(
+                  success: true,
+                  serverMessage: "Data absensi disimpan offline karena tidak ada internet. Anda dapat upload manual melalui Upload Data Manual.",
+                ));
+
+                await state.cameraController!.startImageStream((image) {
+                  if (!state.isLoading) {
+                    add(ProcessCameraImage(image, attendanceType: event.attendanceType));
+                  }
+                });
+
+                return;
           }
 
       // --------------------------
       // 🟩 NEW CODE: HIT API
       // --------------------------
+      
       final result = await attendanceRepository.attendanceLog(
         deviceId: deviceId,
         employeeId: idEmployee,
         attendanceType: event.attendanceType,
+        address: address, 
+        entryDate: entryDate,
         latitude: position.latitude,
         longitude: position.longitude,
-        address: address,
       );
 
       // --------------------------
       // 🟩 NEW CODE: HANDLE RESPONSE
       // --------------------------
-      result.fold(
-        (failure) {
-          emit(state.copyWith(
-            success: false,
-            errorMessage: failure.toString(),
-          ));
-        },
-        (msg) {
-          emit(state.copyWith(
-            success: true,
-            serverMessage: msg
+        result.fold(
+          (failure) {
+            emit(state.copyWith(
+              success: false,
+              errorMessage: failure.toString(),
             ));
-        },
-      );
+          },
+          (msg) {
+            emit(state.copyWith(
+              success: true,
+              serverMessage: msg
+              ));
+          },
+        );
       } else {
          // Jika wajah tidak cocok
         await state.cameraController!.startImageStream((image) {

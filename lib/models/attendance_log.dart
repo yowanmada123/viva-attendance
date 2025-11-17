@@ -6,7 +6,7 @@ class AttendanceLog {
   final double latitude;
   final double longitude;
   final String deviceId;
-  final DateTime timestamp;
+  final String entryDate;
   final bool success;
 
   AttendanceLog({
@@ -17,7 +17,7 @@ class AttendanceLog {
     required this.latitude,
     required this.longitude,
     required this.deviceId,
-    required this.timestamp,
+    required this.entryDate,
     this.success = false,
   });
 
@@ -30,7 +30,7 @@ class AttendanceLog {
       'latitude': latitude,
       'longitude': longitude,
       'deviceId': deviceId,
-      'timestamp': timestamp.toIso8601String(),
+      'entry': entryDate,
       'success': success ? 1 : 0,
     };
   }
@@ -44,7 +44,7 @@ class AttendanceLog {
       latitude: map['latitude'],
       longitude: map['longitude'],
       deviceId: map['deviceId'],
-      timestamp: DateTime.parse(map['timestamp']),
+      entryDate: map['entryDate'],
       success: map['success'] == 1,
     );
   }
