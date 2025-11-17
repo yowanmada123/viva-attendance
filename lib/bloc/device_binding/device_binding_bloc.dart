@@ -1,9 +1,14 @@
 
+import 'dart:convert';
+
 import 'package:face_verification/face_verification.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viva_attendance/data/repository/attendance_repository.dart';
 import 'package:viva_attendance/models/device_binding.dart';
 import 'package:viva_attendance/utils/device_utils.dart';
+
+import '../../data/data_providers/shared-preferences/shared_preferences_key.dart';
+import '../../data/data_providers/shared-preferences/shared_preferences_manager.dart';
 
 part 'device_binding_event.dart';
 part 'device_binding_state.dart';
@@ -22,8 +27,17 @@ class DeviceBindingBloc extends Bloc<DeviceBindingEvent, DeviceBindingState> {
   ) async {
     emit(DeviceBindingLoading());
     try {
+      final pref = SharedPreferencesManager(key: SharedPreferencesKey.loginRememberKey);
+      final data = await pref.read();
+      String idEmployee = '';
+      if (data != null) {
+        final decoded = json.decode(data);
+        idEmployee = decoded['username'];
+
+      }
+
       final res = await attendanceRepository.getDeviceBindings(
-        deviceId: await DeviceUtils.getDeviceId(),
+        deviceId: await DeviceUtils.getDeviceId(), idEmployee: idEmployee,
       );
       res.fold(
         (error) => emit(

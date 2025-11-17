@@ -9,6 +9,8 @@ class AttendanceState {
   final bool isDetecting;
   final bool success;
   final bool isLoading;
+  final String? serverMessage;
+
 
   AttendanceState({
     this.cameraController,
@@ -19,6 +21,8 @@ class AttendanceState {
     this.isDetecting = false,
     this.success = false,
     this.isLoading = false,
+    this.serverMessage,
+
   });
 
   AttendanceState copyWith({
@@ -30,6 +34,7 @@ class AttendanceState {
     bool? isDetecting,
     bool? success,
     bool? isLoading,
+    String? serverMessage,
   }) {
     return AttendanceState(
       cameraController: cameraController ?? this.cameraController,
@@ -40,6 +45,7 @@ class AttendanceState {
       isDetecting: isDetecting ?? this.isDetecting,
       success: success ?? this.success,
       isLoading: isLoading ?? this.isLoading,
+      serverMessage: serverMessage ?? this.serverMessage,
     );
   }
 }
