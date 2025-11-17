@@ -133,19 +133,19 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final connectivityResult = await (Connectivity().checkConnectivity());
 
          if (connectivityResult == ConnectivityResult.none) {
-        emit(state.copyWith(
-          success: false,
-          errorMessage: "Tidak ada koneksi internet. Nyalakan data / wifi.",
-        ));
+              emit(state.copyWith(
+                success: false,
+                errorMessage: "Tidak ada koneksi internet. Nyalakan data / wifi.",
+              ));
 
-        await state.cameraController!.startImageStream((image) {
-          if (!state.isLoading) {
-            add(ProcessCameraImage(image, attendanceType: event.attendanceType));
+              await state.cameraController!.startImageStream((image) {
+                if (!state.isLoading) {
+                  add(ProcessCameraImage(image, attendanceType: event.attendanceType));
+                }
+              });
+
+            return; // <- wajib
           }
-        });
-
-        return; // <- wajib
-      }
 
       // --------------------------
       // 🟩 NEW CODE: HIT API
