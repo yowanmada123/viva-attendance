@@ -34,14 +34,14 @@ class FaceRecognitionScreen extends StatelessWidget {
                 {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("${state.detectedName} berhasil absen"),
+                      content: Text(state.serverMessage ?? "Success"),
                       backgroundColor: Colors.green,
                     ),
                   ),
                   Navigator.popUntil(context, (route) => route.isFirst),
                   
                 }
-              else if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
+              else if (state.errorMessage != null && state.errorMessage !.isNotEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(state.errorMessage!),

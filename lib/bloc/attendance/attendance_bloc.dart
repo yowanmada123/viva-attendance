@@ -169,8 +169,11 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
             errorMessage: failure.toString(),
           ));
         },
-        (successResponse) {
-          emit(state.copyWith(success: true));
+        (msg) {
+          emit(state.copyWith(
+            success: true,
+            serverMessage: msg
+            ));
         },
       );
       } else {
