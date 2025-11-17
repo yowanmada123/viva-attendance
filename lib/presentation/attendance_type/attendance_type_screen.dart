@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_key.dart';
+import 'package:viva_attendance/data/data_providers/shared-preferences/shared_preferences_manager.dart';
 
 import '../../bloc/auth/authentication/authentication_bloc.dart';
 import '../../bloc/auth/logout/logout_bloc.dart';
@@ -37,6 +39,8 @@ class AttendanceTypeScreen extends StatelessWidget {
             child: BlocConsumer<LogoutBloc, LogoutState>(
               listener: (context, state) {
                 if (state is LogoutSuccess || state is LogoutFailure) {
+                  SharedPreferencesManager(key: SharedPreferencesKey.usernameAccessKey)
+                          .clear();
                   context.read<AuthenticationBloc>().add(SetAuthenticationStatus(isAuthenticated: false));
                   Navigator.popUntil(context, (route) => route.isFirst);
                 }
