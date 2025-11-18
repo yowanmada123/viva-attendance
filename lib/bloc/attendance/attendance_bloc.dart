@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
@@ -109,35 +110,44 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final idEmployee = matchId.split('-')[0];
         
         emit(state.copyWith(detectedName: name));
-        
+        log('detectedName executed');
          // GET LOCATION
-        final position = await StrictLocation.getCurrentPosition();
-
+       final position = await StrictLocation.getCurrentPosition().timeout(
+          Duration(seconds: 5),
+          onTimeout: () {
+            // lempar error ketika timeout
+            throw Exception(
+              "Gagal mendapatkan lokasi. Pastikan GPS menyala dan tidak menggunakan fake GPS."
+            );
+          },
+        );
+        
+        log('getCurrentPosition executed');
         final placemarks = await placemarkFromCoordinates(
           position.latitude,
           position.longitude,
         );
-
+        log('placemarkFromCoordinates executed');
         final address =
             placemarks.isNotEmpty
                 ? "${placemarks.first.street}, ${placemarks.first.subLocality}, ${placemarks.first.locality}, ${placemarks.first.subAdministrativeArea}, ${placemarks.first.administrativeArea} ${placemarks.first.postalCode}"
                 : "Address not found";
-
+        log('get address executed');
 
         final deviceId = await DeviceUtils.getDeviceId();
-
+        log('get deviceId executed');
         // Save to SQLite first
         
 
         // 🟩 NEW CODE: CEK INTERNET
         final connectivityResult = await (Connectivity().checkConnectivity());
-
+        log('cek connection');
          if (connectivityResult == ConnectivityResult.none) {
         emit(state.copyWith(
           success: false,
           errorMessage: "Tidak ada koneksi internet. Nyalakan data / wifi.",
         ));
-
+        log('Tidak ada Koneksi');
         await state.cameraController!.startImageStream((image) {
           if (!state.isLoading) {
             add(ProcessCameraImage(image, attendanceType: event.attendanceType));
@@ -146,7 +156,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
         return; // <- wajib
       }
-
+        log('Siyap HIT API');
       // --------------------------
       // 🟩 NEW CODE: HIT API
       // --------------------------
