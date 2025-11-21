@@ -10,23 +10,22 @@ class DeleteDeviceBindingScreen extends StatefulWidget {
   const DeleteDeviceBindingScreen({super.key});
 
   @override
-  State<DeleteDeviceBindingScreen> createState() => _DeleteDeviceBindingScreenState();
+  State<DeleteDeviceBindingScreen> createState() =>
+      _DeleteDeviceBindingScreenState();
 }
 
 class _DeleteDeviceBindingScreenState extends State<DeleteDeviceBindingScreen> {
- 
-  
   @override
   void initState() {
     context.read<DeviceBindingBloc>().add(LoadRegisteredFaces());
     super.initState();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    log('Access to presentation/delete_device_binding/delete_device_binding_screen.dart');
+    log(
+      'Access to presentation/delete_device_binding/delete_device_binding_screen.dart',
+    );
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -44,7 +43,10 @@ class _DeleteDeviceBindingScreenState extends State<DeleteDeviceBindingScreen> {
       ),
       body: SafeArea(
         child: BlocConsumer<DeviceBindingBloc, DeviceBindingState>(
-          listenWhen: (previous, current) => current is DeleteDeviceBindingSuccess || current is DeviceBindingError,
+          listenWhen:
+              (previous, current) =>
+                  current is DeleteDeviceBindingSuccess ||
+                  current is DeviceBindingError,
           listener: (context, state) {
             if (state is DeleteDeviceBindingSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -103,9 +105,8 @@ class _DeleteDeviceBindingScreenState extends State<DeleteDeviceBindingScreen> {
                     final isEven = index % 2 == 0;
 
                     return Container(
-                      color: isEven
-                          ? Colors.grey.shade100
-                          : Colors.grey.shade200,
+                      color:
+                          isEven ? Colors.grey.shade100 : Colors.grey.shade200,
                       child: ListTile(
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 16.w,
@@ -132,30 +133,41 @@ class _DeleteDeviceBindingScreenState extends State<DeleteDeviceBindingScreen> {
                           onPressed: () async {
                             final confirm = await showDialog<bool>(
                               context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text("Konfirmasi"),
-                                content: Text(
-                                  "Apakah Anda yakin ingin menghapus wajah milik ${face.name}?",
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: const Text("Batal"),
-                                  ),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Theme.of(context).primaryColor,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: const Text("Konfirmasi"),
+                                    content: Text(
+                                      "Apakah Anda yakin ingin menghapus wajah milik ${face.name}?",
                                     ),
-                                    onPressed: () => Navigator.pop(context, true),
-                                    child: const Text("Hapus", style: TextStyle(color: Colors.white)),
+                                    actions: [
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.pop(context, false),
+                                        child: const Text("Batal"),
+                                      ),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              Theme.of(context).primaryColor,
+                                        ),
+                                        onPressed:
+                                            () => Navigator.pop(context, true),
+                                        child: const Text(
+                                          "Hapus",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
                             );
 
                             if (confirm == true && context.mounted) {
-                              context.read<DeviceBindingBloc>().add(DeleteRegisteredFace(face.idemployee, face.name));
+                              context.read<DeviceBindingBloc>().add(
+                                DeleteRegisteredFace(
+                                  face.idemployee,
+                                  face.name,
+                                ),
+                              );
                             }
                           },
                         ),
@@ -166,9 +178,9 @@ class _DeleteDeviceBindingScreenState extends State<DeleteDeviceBindingScreen> {
               );
             }
             return const SizedBox();
-          }
+          },
         ),
-      )
+      ),
     );
   }
 }

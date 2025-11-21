@@ -26,8 +26,9 @@ class AttendanceRest {
       http.options.headers['requiresToken'] = true;
       log('Request to https://android.kencana.org/api/attendance (GET)');
 
-      final entryDate = DateFormat('yyyy-MM-dd HH:mm:ss')
-        .format(DateTime.now());  
+      final entryDate = DateFormat(
+        'yyyy-MM-dd HH:mm:ss',
+      ).format(DateTime.now());
 
       final payload = {
         "idemployee": employeeId,
@@ -43,7 +44,9 @@ class AttendanceRest {
       final response = await http.post("api/attendance", data: payload);
       log('Attendance Response: $response');
       if (response.statusCode == 200) {
-        return Right('${response.data['message']} pada: ${response.data['data']['entry_date']}');
+        return Right(
+          '${response.data['message']} pada: ${response.data['data']['entry_date']}',
+        );
       } else {
         return Left(NetUtils.parseErrorResponse(response: response.data));
       }
@@ -79,7 +82,7 @@ class AttendanceRest {
         "longitude": longitude,
         "address": address,
       };
-
+      log('Payload: $payload');
       final response = await http.post("api/userRegister", data: payload);
 
       if (response.statusCode == 200) {

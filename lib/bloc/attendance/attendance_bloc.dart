@@ -91,14 +91,16 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
       if (faces.isEmpty || faces.length > 1) {
         emit(state.copyWith(isLoading: false));
-          await state.cameraController!.startImageStream((image) {
-            if (!state.isLoading) {
-              add(ProcessCameraImage(image, attendanceType: event.attendanceType));
-            }
-          });
-          return;
+        await state.cameraController!.startImageStream((image) {
+          if (!state.isLoading) {
+            add(
+              ProcessCameraImage(image, attendanceType: event.attendanceType),
+            );
+          }
+        });
+        return;
       }
-      
+
       // FACE MATCH
       final matchId = await FaceVerification.instance.verifyFromImagePath(
         imagePath: filePath,
@@ -108,20 +110,20 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       if (matchId != null) {
         final name = matchId.split('-')[1];
         final idEmployee = matchId.split('-')[0];
-        
+
         emit(state.copyWith(detectedName: name));
         log('detectedName executed');
-         // GET LOCATION
-       final position = await StrictLocation.getCurrentPosition().timeout(
-          Duration(seconds: 5),
+        // GET LOCATION
+        final position = await StrictLocation.getCurrentPosition().timeout(
+          Duration(seconds: 10),
           onTimeout: () {
             // lempar error ketika timeout
             throw Exception(
-              "Gagal mendapatkan lokasi. Pastikan GPS menyala dan tidak menggunakan fake GPS."
+              "Gagal mendapatkan lokasi. Pastikan GPS menyala dan tidak menggunakan Fake GPS.",
             );
           },
         );
-        
+
         log('getCurrentPosition executed');
         final placemarks = await placemarkFromCoordinates(
           position.latitude,
@@ -137,60 +139,61 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final deviceId = await DeviceUtils.getDeviceId();
         log('get deviceId executed');
         // Save to SQLite first
-        
 
         // 🟩 NEW CODE: CEK INTERNET
         final connectivityResult = await (Connectivity().checkConnectivity());
         log('cek connection');
-         if (connectivityResult == ConnectivityResult.none) {
-        emit(state.copyWith(
-          success: false,
-          errorMessage: "Tidak ada koneksi internet. Nyalakan data / wifi.",
-        ));
-        log('Tidak ada Koneksi');
-        await state.cameraController!.startImageStream((image) {
-          if (!state.isLoading) {
-            add(ProcessCameraImage(image, attendanceType: event.attendanceType));
-          }
-        });
+        if (connectivityResult == ConnectivityResult.none) {
+          emit(
+            state.copyWith(
+              success: false,
+              errorMessage: "Tidak ada koneksi internet. Nyalakan data / wifi.",
+            ),
+          );
+          log('Tidak ada Koneksi');
+          await state.cameraController!.startImageStream((image) {
+            if (!state.isLoading) {
+              add(
+                ProcessCameraImage(image, attendanceType: event.attendanceType),
+              );
+            }
+          });
 
-        return; // <- wajib
-      }
+          return; // <- wajib
+        }
         log('Siyap HIT API');
-      // --------------------------
-      // 🟩 NEW CODE: HIT API
-      // --------------------------
-      final result = await attendanceRepository.attendanceLog(
-        deviceId: deviceId,
-        employeeId: idEmployee,
-        attendanceType: event.attendanceType,
-        latitude: position.latitude,
-        longitude: position.longitude,
-        address: address,
-      );
+        // --------------------------
+        // 🟩 NEW CODE: HIT API
+        // --------------------------
+        final result = await attendanceRepository.attendanceLog(
+          deviceId: deviceId,
+          employeeId: idEmployee,
+          attendanceType: event.attendanceType,
+          latitude: position.latitude,
+          longitude: position.longitude,
+          address: address,
+        );
 
-      // --------------------------
-      // 🟩 NEW CODE: HANDLE RESPONSE
-      // --------------------------
-      result.fold(
-        (failure) {
-          emit(state.copyWith(
-            success: false,
-            errorMessage: failure.toString(),
-          ));
-        },
-        (msg) {
-          emit(state.copyWith(
-            success: true,
-            serverMessage: msg
-            ));
-        },
-      );
+        // --------------------------
+        // 🟩 NEW CODE: HANDLE RESPONSE
+        // --------------------------
+        result.fold(
+          (failure) {
+            emit(
+              state.copyWith(success: false, errorMessage: failure.toString()),
+            );
+          },
+          (msg) {
+            emit(state.copyWith(success: true, serverMessage: msg));
+          },
+        );
       } else {
-         // Jika wajah tidak cocok
+        // Jika wajah tidak cocok
         await state.cameraController!.startImageStream((image) {
           if (!state.isLoading) {
-            add(ProcessCameraImage(image, attendanceType: event.attendanceType));
+            add(
+              ProcessCameraImage(image, attendanceType: event.attendanceType),
+            );
           }
         });
         emit(state.copyWith(detectedName: null));

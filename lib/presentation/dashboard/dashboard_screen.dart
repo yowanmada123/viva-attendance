@@ -8,6 +8,7 @@ import '../../bloc/auth/authentication/authentication_bloc.dart';
 import '../../bloc/auth/logout/logout_bloc.dart';
 import '../attendance_type/attendance_type_screen.dart';
 import '../delete_device_binding/delete_device_binding_screen.dart';
+import '../delete_device_binding/registered_face_list_screen.dart';
 import '../employee/employee_register_screen.dart';
 import '../widgets/base_card_button.dart';
 import '../widgets/base_pop_up_dialog.dart';
@@ -90,7 +91,7 @@ class DashboardScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 16.w),
-        
+
               BaseCardButton(
                 title: "Halaman Absensi",
                 color: Theme.of(context).primaryColor,
@@ -107,7 +108,7 @@ class DashboardScreen extends StatelessWidget {
                 },
               ),
               SizedBox(height: 16.w),
-        
+
               BaseCardButton(
                 title: "Tambah Data Absensi Baru",
                 color: Theme.of(context).secondaryHeaderColor,
@@ -117,13 +118,15 @@ class DashboardScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => EmployeeRegisterScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => EmployeeRegisterScreen(),
+                    ),
                   );
                 },
               ),
 
               SizedBox(height: 16.w),
-        
+
               BaseCardButton(
                 title: "Hapus Device Terdaftar",
                 color: Theme.of(context).primaryColor,
@@ -133,7 +136,9 @@ class DashboardScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => DeleteDeviceBindingScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => DeleteRegisteredFaceScreen(),
+                    ),
                   );
                 },
               ),
