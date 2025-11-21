@@ -12,6 +12,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:viva_attendance/bloc/delete_registered_user/delete_registered_user_bloc.dart';
 
 import 'bloc/auth/authentication/authentication_bloc.dart';
 import 'bloc/auth/logout/logout_bloc.dart';
@@ -89,10 +90,35 @@ void main() async {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(lazy: false, create: (context) => AuthenticationBloc()),
-          BlocProvider(lazy: false, create: (context) => RegisterEmployeeBloc(attendanceRepository: attendanceRepository)),
-          BlocProvider(lazy: false, create: (context) => CredentialsBloc(authorizationRepository: authorizationRepository)),
-          BlocProvider(lazy: false, create: (context) => UpdateBloc()..add(CheckForUpdate())),
-          BlocProvider(lazy: false, create: (context) => DeviceBindingBloc(attendanceRepository: attendanceRepository)),
+          BlocProvider(
+            lazy: false,
+            create: (context) => DeviceRegisteredBloc(),
+          ),
+          BlocProvider(
+            lazy: false,
+            create:
+                (context) => RegisterEmployeeBloc(
+                  attendanceRepository: attendanceRepository,
+                ),
+          ),
+          BlocProvider(
+            lazy: false,
+            create:
+                (context) => CredentialsBloc(
+                  authorizationRepository: authorizationRepository,
+                ),
+          ),
+          BlocProvider(
+            lazy: false,
+            create: (context) => UpdateBloc()..add(CheckForUpdate()),
+          ),
+          BlocProvider(
+            lazy: false,
+            create:
+                (context) => DeviceBindingBloc(
+                  attendanceRepository: attendanceRepository,
+                ),
+          ),
           BlocProvider(
             lazy: false,
             create: (context) => LogoutBloc(authRepository),
@@ -205,7 +231,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                             }
                             return AttendanceTypeScreen();
                           } else if (credState is CredentialsLoading) {
-                            return const Center(child: CircularProgressIndicator());
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
                           } else {
                             return LoginFormScreen();
                           }
@@ -215,10 +243,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
                     return LoginFormScreen();
                   },
+                ),
               ),
             ),
           ),
-        )
     );
   }
 
