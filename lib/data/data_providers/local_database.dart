@@ -14,11 +14,7 @@ class LocalDatabase {
 
   static Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'attendance.db');
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate,
-    );
+    return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
   static Future<void> _onCreate(Database db, int version) async {
@@ -31,7 +27,7 @@ class LocalDatabase {
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
         deviceId TEXT NOT NULL,
-        timestamp TEXT NOT NULL,
+        entryDate TEXT NOT NULL,
         success INTEGER NOT NULL DEFAULT 0
       )
     ''');
@@ -64,10 +60,6 @@ class LocalDatabase {
 
   static Future<void> deleteLog(int id) async {
     final db = await database;
-    await db.delete(
-      _tableName,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
   }
 }

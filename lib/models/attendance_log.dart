@@ -6,8 +6,7 @@ class AttendanceLog {
   final double latitude;
   final double longitude;
   final String deviceId;
-  final DateTime timestamp;
-  final bool success;
+  final String entryDate; // ← sama seperti data kamu (String)
 
   AttendanceLog({
     this.id,
@@ -17,8 +16,7 @@ class AttendanceLog {
     required this.latitude,
     required this.longitude,
     required this.deviceId,
-    required this.timestamp,
-    this.success = false,
+    required this.entryDate,
   });
 
   Map<String, dynamic> toMap() {
@@ -30,8 +28,7 @@ class AttendanceLog {
       'latitude': latitude,
       'longitude': longitude,
       'deviceId': deviceId,
-      'timestamp': timestamp.toIso8601String(),
-      'success': success ? 1 : 0,
+      'entryDate': entryDate, // ← tetap String
     };
   }
 
@@ -44,8 +41,7 @@ class AttendanceLog {
       latitude: map['latitude'],
       longitude: map['longitude'],
       deviceId: map['deviceId'],
-      timestamp: DateTime.parse(map['timestamp']),
-      success: map['success'] == 1,
+      entryDate: map['entryDate'],
     );
   }
 }

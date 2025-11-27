@@ -16,6 +16,7 @@ class AttendanceRest {
 
   Future<Either<CustomException, String>> attendanceLog({
     required String employeeId,
+    required String entryDate,
     required String deviceId,
     required String attendanceType,
     required String address,

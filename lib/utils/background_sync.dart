@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:intl/intl.dart';
+
 import '../data/data_providers/local_database.dart';
 import '../data/repository/attendance_repository.dart';
 
@@ -43,6 +45,7 @@ class BackgroundSync {
     while (retryCount < maxRetries) {
       try {
         final result = await _repository.attendanceLog(
+          entryDate: log.entryDate,
           deviceId: log.deviceId,
           employeeId: log.employeeId,
           attendanceType: log.attendanceType,

@@ -88,6 +88,9 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       // For formatting purposes
       final inputImage = InputImage.fromFilePath(filePath);
       final faces = await _faceDetector.processImage(inputImage);
+      final entryDate = DateFormat(
+        'yyyy-MM-dd HH:mm:ss',
+      ).format(DateTime.now());
 
       if (faces.isEmpty || faces.length > 1) {
         emit(state.copyWith(isLoading: false));
@@ -144,10 +147,22 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final connectivityResult = await (Connectivity().checkConnectivity());
         log('cek connection');
         if (connectivityResult == ConnectivityResult.none) {
+          final attendanceLog = AttendanceLog(
+            employeeId: idEmployee,
+            attendanceType: event.attendanceType,
+            address: address,
+            latitude: position.latitude,
+            longitude: position.longitude,
+            deviceId: deviceId,
+            entryDate: entryDate,
+          );
+          await LocalDatabase.insertAttendanceLog(attendanceLog);
+
           emit(
             state.copyWith(
-              success: false,
-              errorMessage: "Tidak ada koneksi internet. Nyalakan data / wifi.",
+              success: true,
+              serverMessage:
+                  "Tidak ada koneksi internet. Data absensi akan disimpan, anda dapat upload manual ketika memiliki koneksi internet",
             ),
           );
           log('Tidak ada Koneksi');
@@ -165,7 +180,9 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         // --------------------------
         // 🟩 NEW CODE: HIT API
         // --------------------------
+
         final result = await attendanceRepository.attendanceLog(
+          entryDate: entryDate,
           deviceId: deviceId,
           employeeId: idEmployee,
           attendanceType: event.attendanceType,

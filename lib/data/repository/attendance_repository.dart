@@ -17,6 +17,7 @@ class AttendanceRepository {
     required String address,
     required double latitude,
     required double longitude,
+    required String entryDate,
   }) async {
     return attendanceRest.attendanceLog(
       employeeId: employeeId,
@@ -25,6 +26,7 @@ class AttendanceRepository {
       address: address,
       latitude: latitude,
       longitude: longitude,
+      entryDate: entryDate,
     );
   }
 
@@ -56,7 +58,10 @@ class AttendanceRepository {
     required String deviceId,
     required String idEmployee,
   }) async {
-    return attendanceRest.getDeviceBindings(deviceId: deviceId, idEmployee: idEmployee);
+    return attendanceRest.getDeviceBindings(
+      deviceId: deviceId,
+      idEmployee: idEmployee,
+    );
   }
 
   Future<Either<CustomException, String>> deleteDeviceBinding({
