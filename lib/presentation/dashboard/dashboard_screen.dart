@@ -3,11 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:viva_attendance/presentation/attendance_offline_page/attendance_offline_page.dart';
 
 import '../../bloc/auth/authentication/authentication_bloc.dart';
 import '../../bloc/auth/logout/logout_bloc.dart';
 import '../attendance_type/attendance_type_screen.dart';
-import '../delete_device_binding/delete_device_binding_screen.dart';
 import '../delete_device_binding/registered_face_list_screen.dart';
 import '../employee/employee_register_screen.dart';
 import '../widgets/base_card_button.dart';
@@ -18,7 +18,7 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('Access to presentation/dashboard/dashboard_scree.dart');
+    log('Access to presentation/dashboard/dashboard_screen.dart');
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -86,7 +86,7 @@ class DashboardScreen extends StatelessWidget {
               ),
               SizedBox(height: 16.w),
               Text(
-                "Halo! Terima kasih sudah login. Aplikasi ini hadir untuk memudahkan pengelolaan absensimu. Kamu bisa menambahkan data baru bila perlu, atau langsung masuk ke halaman absensi untuk mencatat kehadiran.",
+                "Halo! Terima kasih sudah login. Aplikasi ini hadir untuk memudahkan pengelolaan absensimu. Kamu bisa langsung masuk ke halaman absensi untuk mencatat kehadiran atau menuju halaman manual upload untuk mengirim absensimu yang macet karena internet",
                 style: TextStyle(fontSize: 12.w),
                 textAlign: TextAlign.center,
               ),
@@ -109,35 +109,34 @@ class DashboardScreen extends StatelessWidget {
               ),
               SizedBox(height: 16.w),
 
-              BaseCardButton(
-                title: "Tambah Data Absensi Baru",
-                color: Theme.of(context).secondaryHeaderColor,
-                icon: Icons.camera_enhance_outlined,
-                description:
-                    "Anda dapat menambahkan data karyawan baru pada sistem absensi.",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EmployeeRegisterScreen(),
-                    ),
-                  );
-                },
-              ),
+              // BaseCardButton(
+              //   title: "Tambah Data Absensi Baru",
+              //   color: Theme.of(context).secondaryHeaderColor,
+              //   icon: Icons.camera_enhance_outlined,
+              //   description:
+              //       "Anda dapat menambahkan data karyawan baru pada sistem absensi.",
+              //   onTap: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => EmployeeRegisterScreen(),
+              //       ),
+              //     );
+              //   },
+              // ),
 
-              SizedBox(height: 16.w),
-
+              // SizedBox(height: 16.w),
               BaseCardButton(
-                title: "Hapus Device Terdaftar",
+                title: "Upload Manual Attendance",
                 color: Theme.of(context).primaryColor,
-                icon: Icons.delete_outline,
+                icon: Icons.upload,
                 description:
                     "Anda dapat menghapus device yang terdaftar pada sistem absensi.",
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DeleteRegisteredFaceScreen(),
+                      builder: (context) => AttendanceOfflinePage(),
                     ),
                   );
                 },

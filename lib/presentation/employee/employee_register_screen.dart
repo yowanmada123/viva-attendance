@@ -63,7 +63,10 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        BlocListener<RegisterEmployeeBloc, RegisterEmployeeState>(
+                        BlocListener<
+                          RegisterEmployeeBloc,
+                          RegisterEmployeeState
+                        >(
                           listener: (context, state) {
                             if (state is EmployeeSearchError) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -76,7 +79,12 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.r),
                                   ),
-                                  backgroundColor: Color.fromARGB(255, 243, 78, 78),
+                                  backgroundColor: Color.fromARGB(
+                                    255,
+                                    243,
+                                    78,
+                                    78,
+                                  ),
                                 ),
                               );
                             } else if (state is EmployeeSearchSuccess) {
@@ -88,18 +96,25 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
                           child: BaseDropdownSearch<Employee>(
                             label: "Select Employee",
                             items: employeeList,
-                            getLabel: (emp) => '${emp.idemployee} - ${emp.name}',
+                            getLabel:
+                                (emp) => '${emp.idemployee} - ${emp.name}',
                             selectedValue: selectedEmployee,
                             onChanged: (val) {
                               setState(() => selectedEmployee = val);
                             },
                             onSearchChanged: (query) {
-                              if (_debounce?.isActive ?? false) _debounce?.cancel();
-                              _debounce = Timer(const Duration(milliseconds: 400), () {
-                                if (query.isNotEmpty) {
-                                  context.read<RegisterEmployeeBloc>().add(SearchEmployeeEvent(query));
-                                }
-                              });
+                              if (_debounce?.isActive ?? false)
+                                _debounce?.cancel();
+                              _debounce = Timer(
+                                const Duration(milliseconds: 400),
+                                () {
+                                  if (query.isNotEmpty) {
+                                    context.read<RegisterEmployeeBloc>().add(
+                                      SearchEmployeeEvent(query),
+                                    );
+                                  }
+                                },
+                              );
                             },
                           ),
                         ),
@@ -135,50 +150,60 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
                             clipBehavior: Clip.hardEdge,
                             child: FlutterLocationPicker.withConfiguration(
                               initPosition: LatLong(-7.24917, 112.75083),
-                              userAgent: 'VivaAttendance/1.0.2 (vivakencana@gmail.com)',
+                              userAgent:
+                                  'VivaAttendance/1.0.2 (vivakencana@gmail.com)',
                               mapConfiguration: MapConfiguration(
                                 initZoom: 12.0,
                                 stepZoom: 2.0,
                                 mapLanguage: 'id',
-                                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                urlTemplate:
+                                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                               ),
                               searchConfiguration: SearchConfiguration(
                                 maxSearchResults: 8,
                                 searchBarHintText: 'Search for places...',
-                                searchbarDebounceDuration: Duration(milliseconds: 300),
+                                searchbarDebounceDuration: Duration(
+                                  milliseconds: 300,
+                                ),
                               ),
-                            
                               controlsConfiguration: ControlsConfiguration(
                                 showZoomController: false,
                                 showLocationController: false,
                               ),
                               markerConfiguration: MarkerConfiguration(
-                                markerIcon: Icon(Icons.location_pin, color: Colors.red, size: 30),
+                                markerIcon: Icon(
+                                  Icons.location_pin,
+                                  color: Colors.red,
+                                  size: 30,
+                                ),
                                 showMarkerShadow: false,
                                 animateMarker: true,
                               ),
-                            
-                              selectButtonConfiguration: SelectButtonConfiguration(
-                                selectLocationButtonText: 'Choose This Location',
-                                selectLocationButtonStyle: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context).primaryColor,
-                                  side: BorderSide(
-                                    style: BorderStyle.none
+                              selectButtonConfiguration:
+                                  SelectButtonConfiguration(
+                                    selectLocationButtonText:
+                                        'Choose This Location',
+                                    selectLocationButtonStyle:
+                                        ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              Theme.of(context).primaryColor,
+                                          side: BorderSide(
+                                            style: BorderStyle.none,
+                                          ),
+                                          foregroundColor: Colors.white,
+                                          textStyle: TextStyle(
+                                            fontSize: 12.w,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                   ),
-                                  foregroundColor: Colors.white,
-                                  textStyle: TextStyle(
-                                    fontSize: 12.w,
-                                    fontWeight: FontWeight.bold
-                                  )
-                                ),
-                              ),
-                            
+
                               onPicked: (pickedData) {
                                 setState(() {
                                   selectedLatLng = pickedData.latLong;
                                   selectedAddress = null;
                                 });
-                            
+
                                 _fetchAddress(pickedData.latLong);
                               },
                             ),
@@ -194,10 +219,15 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
                                       SizedBox(
                                         width: 16.w,
                                         height: 16.w,
-                                        child: const CircularProgressIndicator(strokeWidth: 2),
+                                        child: const CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
                                       ),
                                       SizedBox(width: 8.w),
-                                      Text('Mencari alamat...', style: TextStyle(fontSize: 13.w)),
+                                      Text(
+                                        'Mencari alamat...',
+                                        style: TextStyle(fontSize: 13.w),
+                                      ),
                                     ],
                                   )
                                 else
@@ -213,22 +243,26 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: selectedEmployee == null
-                                ? null
-                                : () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => RegistrationScreen(
-                                          employee: selectedEmployee!,
-                                          isSales: isSales,
-                                          latitude: selectedLatLng?.latitude,
-                                          longitude: selectedLatLng?.longitude,
-                                          address: selectedAddress,
+                            onPressed:
+                                selectedEmployee == null
+                                    ? null
+                                    : () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (_) => RegistrationScreen(
+                                                employee: selectedEmployee!,
+                                                isSales: isSales,
+                                                latitude:
+                                                    selectedLatLng?.latitude,
+                                                longitude:
+                                                    selectedLatLng?.longitude,
+                                                address: selectedAddress,
+                                              ),
                                         ),
-                                      ),
-                                    );
-                                  },
+                                      );
+                                    },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Theme.of(context).primaryColor,
                               padding: EdgeInsets.symmetric(vertical: 12.w),
@@ -249,7 +283,7 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
                 ),
               ),
             );
-          }
+          },
         ),
       ),
     );
@@ -262,11 +296,24 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
     });
 
     try {
-      final placemarks = await placemarkFromCoordinates(point.latitude, point.longitude);
+      final placemarks = await placemarkFromCoordinates(
+        point.latitude,
+        point.longitude,
+      );
       if (placemarks.isNotEmpty) {
         final p = placemarks.first;
-        final parts = [p.street, p.subLocality, p.locality, p.administrativeArea, p.postalCode, p.country];
-        final address = parts.whereType<String>().where((s) => s.trim().isNotEmpty).join(', ');
+        final parts = [
+          p.street,
+          p.subLocality,
+          p.locality,
+          p.administrativeArea,
+          p.postalCode,
+          p.country,
+        ];
+        final address = parts
+            .whereType<String>()
+            .where((s) => s.trim().isNotEmpty)
+            .join(', ');
         if (mounted) {
           setState(() {
             selectedAddress = address;

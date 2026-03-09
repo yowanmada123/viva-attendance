@@ -108,7 +108,7 @@ class AttendanceRest {
   }) async {
     try {
       http.options.headers['requiresToken'] = true;
-      log('Request to https://android.kencana.org/api/searchUser (GET)');
+      log('Request to ${http.options.baseUrl}api/searchUser (GET)');
 
       final payload = {"keyword": query};
 

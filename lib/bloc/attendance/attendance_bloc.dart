@@ -182,13 +182,13 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         // --------------------------
 
         final result = await attendanceRepository.attendanceLog(
-          entryDate: entryDate,
-          deviceId: deviceId,
           employeeId: idEmployee,
           attendanceType: event.attendanceType,
+          address: address,
           latitude: position.latitude,
           longitude: position.longitude,
-          address: address,
+          deviceId: deviceId,
+          entryDate: entryDate,
         );
 
         // --------------------------

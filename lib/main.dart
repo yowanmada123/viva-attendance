@@ -13,6 +13,7 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:viva_attendance/bloc/delete_registered_user/delete_registered_user_bloc.dart';
+import 'package:viva_attendance/presentation/dashboard/dashboard_screen.dart';
 
 import 'bloc/auth/authentication/authentication_bloc.dart';
 import 'bloc/auth/logout/logout_bloc.dart';
@@ -30,7 +31,7 @@ import 'data/repository/auth_repository.dart';
 import 'data/repository/authorization_repository.dart';
 import 'environment.dart';
 import 'presentation/attendance_type/attendance_type_screen.dart';
-import 'presentation/dashboard/dashboard_screen.dart';
+import 'presentation/dashboard/dashboard_admin_screen.dart';
 import 'presentation/login/login_form_screen.dart';
 import 'utils/background_sync.dart';
 import 'utils/interceptors/dio_request_token_interceptor.dart';
@@ -227,9 +228,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                           if (credState is CredentialsLoadSuccess) {
                             final credentials = credState.credentials;
                             if (credentials["ADMIN_ABSEN"] == "Y") {
-                              return DashboardScreen();
+                              return DashboardAdminScreen();
                             }
-                            return AttendanceTypeScreen();
+                            return DashboardScreen();
                           } else if (credState is CredentialsLoading) {
                             return const Center(
                               child: CircularProgressIndicator(),

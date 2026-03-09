@@ -16,11 +16,8 @@ class AuthRest {
     required String password,
   }) async {
     try {
-      final body = {
-        'username': username,
-        'password': password,
-      };
-      log('Request to https://android.kencana.org/api/login (POST)');
+      final body = {'username': username, 'password': password};
+      log('Request to ${http.options.baseUrl}api/login (POST)');
       final response = await http.post('api/login', data: body);
       if (response.statusCode == 200) {
         final body = response.data;
