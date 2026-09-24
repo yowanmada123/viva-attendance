@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:location_picker_flutter_map/location_picker_flutter_map.dart';
 
 import '../../bloc/register/employee/register_employee_bloc.dart';
@@ -173,13 +172,44 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
                                 ),
                               ),
                             
+                              onError: (e) {
+                                debugPrint('LocationPicker error: $e');
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text('Gagal mengambil alamat dari peta. Silakan coba lagi.'),
+                                    duration: const Duration(seconds: 3),
+                                    behavior: SnackBarBehavior.floating,
+                                    backgroundColor: const Color.fromARGB(255, 243, 78, 78),
+                                  ),
+                                );
+                              },
                               onPicked: (pickedData) {
-                                setState(() {
-                                  selectedLatLng = pickedData.latLong;
-                                  selectedAddress = null;
-                                });
-                            
-                                _fetchAddress(pickedData.latLong);
+                                // Alamat sudah di-reverse-geocode oleh package (Nominatim)
+                                // tepat di titik tengah peta (pin point).
+                                final hasAddress = pickedData.address.isNotEmpty &&
+                                    pickedData.address != 'This location is not accessible';
+
+                                if (hasAddress) {
+                                  setState(() {
+                                    selectedLatLng = pickedData.latLong;
+                                    selectedAddress = pickedData.address;
+                                    _isAddressLoading = false;
+                                  });
+                                } else {
+                                  // Nominatim tidak menemukan alamat (latLong dikembalikan 0,0),
+                                  // jadi jangan simpan koordinat yang salah.
+                                  setState(() {
+                                    selectedLatLng = null;
+                                    selectedAddress = null;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Alamat tidak ditemukan di titik ini. Geser pin lalu coba lagi.'),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
                               },
                             ),
                           ),
@@ -253,41 +283,5 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _fetchAddress(LatLong point) async {
-    setState(() {
-      _isAddressLoading = true;
-      selectedAddress = null;
-    });
-
-    try {
-      final placemarks = await placemarkFromCoordinates(point.latitude, point.longitude);
-      if (placemarks.isNotEmpty) {
-        final p = placemarks.first;
-        final parts = [p.street, p.subLocality, p.locality, p.administrativeArea, p.postalCode, p.country];
-        final address = parts.whereType<String>().where((s) => s.trim().isNotEmpty).join(', ');
-        if (mounted) {
-          setState(() {
-            selectedAddress = address;
-            _isAddressLoading = false;
-          });
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            selectedAddress = 'Alamat tidak ditemukan';
-            _isAddressLoading = false;
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          selectedAddress = 'Gagal mengambil alamat';
-          _isAddressLoading = false;
-        });
-      }
-    }
   }
 }

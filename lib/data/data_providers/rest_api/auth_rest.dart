@@ -16,11 +16,9 @@ class AuthRest {
     required String password,
   }) async {
     try {
-      final body = {
-        'username': username,
-        'password': password,
-      };
+      final body = {'username': username, 'password': password};
       log('Request to https://android.kencana.org/api/login (POST)');
+      log('${http.options.baseUrl}api/login (POST)');
       final response = await http.post('api/login', data: body);
       if (response.statusCode == 200) {
         final body = response.data;
@@ -30,10 +28,13 @@ class AuthRest {
         return Left(NetUtils.parseErrorResponse(response: response.data));
       }
     } on DioException catch (e) {
+      log('DioException: ${e.message}');
       return Left(NetUtils.parseDioException(e));
     } on Exception catch (e) {
+      log('Exception: ${e.toString()}');
       return Future.value(Left(CustomException(message: e.toString())));
     } catch (e) {
+      log('Unexpected error: ${e.toString()}');
       return Left(CustomException(message: e.toString()));
     }
   }
